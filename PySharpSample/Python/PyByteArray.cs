@@ -3,7 +3,7 @@
 namespace PySharpSample.Python;
 public unsafe class PyByteArray : PyObject
 {
-    internal PyByteArray(Py.PythonApi._PyObject* handler) : base(handler)
+    internal PyByteArray(PythonApi314._PyObject* handler) : base(handler)
     {
     }
 
@@ -41,7 +41,7 @@ public unsafe class PyByteArray : PyObject
     {
         if (o.GetPyType().Handler == (nint)Py.Api.PyByteArray_Type)
         {
-            Py.PythonApi._PyObject* pyObj = o.ToPyObject();
+            PythonApi314._PyObject* pyObj = o.ToPyObject();
             Py.Api.Py_IncRef(pyObj);
             return new PyByteArray(pyObj);
         }
@@ -50,6 +50,6 @@ public unsafe class PyByteArray : PyObject
 
     public override PyTypeObject GetPyType()
     {
-        return new PyTypeObject((Py.PythonApi._PyObject*)Py.Api.PyByteArray_Type);
+        return new PyTypeObject(Py.Api.PyByteArray_Type);
     }
 }

@@ -5,8 +5,12 @@ namespace PySharpSample.Python;
 
 internal unsafe class PyUnicode : PyObject
 {
-    public PyUnicode(Py.PythonApi._PyObject* o) : base(o)
+    public PyUnicode(PythonApi314._PyObject* o) : base(o)
     {
+        if((*o).ob_type != Py.Api.PyUnicode_Type)
+        {
+            throw new ArgumentException();
+        }
     }
 
     public int GetLength()

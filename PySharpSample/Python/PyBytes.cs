@@ -1,10 +1,10 @@
 ﻿using PySharpSample.Python.Interop;
-using System.Drawing;
 
 namespace PySharpSample.Python;
+
 public unsafe class PyBytes : PyObject
 {
-    internal PyBytes(Py.PythonApi._PyObject* handler) : base(handler)
+    internal PyBytes(PythonApi314._PyObject* handler) : base(handler)
     {
     }
 
@@ -63,7 +63,7 @@ public unsafe class PyBytes : PyObject
     {
         if (o.GetPyType().Handler == (nint)Py.Api.PyBytes_Type)
         {
-            Py.PythonApi._PyObject* pyObj = o.ToPyObject();
+            PythonApi314._PyObject* pyObj = o.ToPyObject();
             Py.Api.Py_IncRef(pyObj);
             return new PyBytes(pyObj);
         }
@@ -72,6 +72,6 @@ public unsafe class PyBytes : PyObject
 
     public override PyTypeObject GetPyType()
     {
-        return new PyTypeObject((Py.PythonApi._PyObject*)Py.Api.PyBytes_Type);
+        return new PyTypeObject(Py.Api.PyBytes_Type);
     }
 }

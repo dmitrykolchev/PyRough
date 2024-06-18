@@ -6,9 +6,9 @@ namespace PySharpSample.Python;
 public unsafe class PyObject : IDisposable
 {
     private bool _disposed;
-    private Py.PythonApi._PyObject* _handler;
+    private PythonApi314._PyObject* _handler;
 
-    internal PyObject(Py.PythonApi._PyObject* handler)
+    internal PyObject(PythonApi314._PyObject* handler)
     {
         if (handler == null)
         {
@@ -19,7 +19,7 @@ public unsafe class PyObject : IDisposable
 
     internal nint Handler => (nint)_handler;
 
-    internal Py.PythonApi._PyObject* ToPyObject()
+    internal PythonApi314._PyObject* ToPyObject()
     {
         return _handler;
     }
@@ -31,7 +31,7 @@ public unsafe class PyObject : IDisposable
         using Utf8String s = Utf8String.Create(name);
         fixed (byte* p = s.Data)
         {
-            Py.PythonApi._PyObject* result = Py.Api.PyObject_GetAttrString(ToPyObject(), p);
+            PythonApi314._PyObject* result = Py.Api.PyObject_GetAttrString(ToPyObject(), p);
             return new PyObject(result);
         }
     }
@@ -43,13 +43,13 @@ public unsafe class PyObject : IDisposable
 
     public PyObject Call(PyTuple args)
     {
-        Py.PythonApi._PyObject* result = Py.Api.PyObject_CallObject(ToPyObject(), args.ToPyObject());
+        PythonApi314._PyObject* result = Py.Api.PyObject_CallObject(ToPyObject(), args.ToPyObject());
         return new PyObject(result);
     }
 
     public PyObject Call()
     {
-        Py.PythonApi._PyObject* result = Py.Api.PyObject_CallObject(ToPyObject(), null);
+        PythonApi314._PyObject* result = Py.Api.PyObject_CallObject(ToPyObject(), null);
         return new PyObject(result);
     }
 

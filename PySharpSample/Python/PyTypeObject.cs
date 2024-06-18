@@ -5,7 +5,8 @@ namespace PySharpSample.Python;
 
 public unsafe class PyTypeObject : PyObject
 {
-    internal PyTypeObject(Py.PythonApi._PyObject* handler) : base(handler)
+    internal PyTypeObject(PythonApi314._PyTypeObject* handler)
+        : base((PythonApi314._PyObject*)handler)
     {
     }
 
@@ -17,8 +18,8 @@ public unsafe class PyTypeObject : PyObject
 
     public static PyTypeObject GetPyType(PyObject obj)
     {
-        Py.PythonApi._PyObject* pyObj = obj.ToPyObject();
-        return new PyTypeObject((Py.PythonApi._PyObject*)(*pyObj).ob_type.ToPointer());
+        PythonApi314._PyObject* pyObj = obj.ToPyObject();
+        return new PyTypeObject((*pyObj).ob_type);
     }
 
     public string GetName()

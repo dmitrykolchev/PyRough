@@ -1,9 +1,11 @@
 ﻿using System.Runtime.InteropServices;
-using Py_ssize_t = System.Int64;
+using Py_ssize_t = nint;
 
 namespace PySharpSample.Python.Interop;
 
-internal unsafe class PythonApi314
+#pragma warning disable CS0649
+
+internal unsafe class PythonApi314(nint module) : ApiTable(module)
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct _PyObject
@@ -165,6 +167,15 @@ internal unsafe class PythonApi314
     [Import] public delegate* unmanaged[Cdecl]<nint, int> Py_AtExit;
     [Import] public delegate* unmanaged[Cdecl]<int, void> Py_Exit;
 
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> Py_IncRef;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> Py_DecRef;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> _Py_Dealloc;
+
+    [Import] public delegate* unmanaged[Cdecl]<char*, void> Py_SetProgramName;
+    [Import] public delegate* unmanaged[Cdecl]<char*, void> Py_SetPythonHome;
+    [Import] public delegate* unmanaged[Cdecl]<char*, void> Py_SetPath;
+
+
     [Import] public _PyTypeObject* PyByteArray_Type;
     [Import] public _PyTypeObject* PyByteArrayIter_Type;
 
@@ -264,3 +275,5 @@ internal unsafe class PythonApi314
     [Import] public delegate* unmanaged[Cdecl]<byte*, nint, _PyObject*> PyUnicode_FromStringAndSize;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyUnicode_FromObject;
 }
+
+#pragma warning restore CS0649
