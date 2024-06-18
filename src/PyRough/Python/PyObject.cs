@@ -26,7 +26,7 @@ public unsafe class PyObject : IDisposable
 
     public PyObject GetAttribute(string name)
     {
-        using Utf8String s = Utf8String.Create(name);
+        Utf8String s = Utf8String.Create(name);
         fixed (byte* p = s.Data)
         {
             PythonApi314._PyObject* result = PyEngine.Api.PyObject_GetAttrString(ToPyObject(), p);

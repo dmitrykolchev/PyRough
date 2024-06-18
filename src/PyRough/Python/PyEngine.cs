@@ -61,7 +61,7 @@ public unsafe partial class PyEngine
     /// <returns></returns>
     public static int Run(string script)
     {
-        using Utf8String buffer = Utf8String.Create(script);
+        Utf8String buffer = Utf8String.Create(script);
         fixed (byte* ptr = buffer.Data)
         {
             return Api.PyRun_SimpleStringFlags(ptr, null);
