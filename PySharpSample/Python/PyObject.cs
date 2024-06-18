@@ -1,6 +1,5 @@
 ﻿using PySharpSample.Python.Interop;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace PySharpSample.Python;
 
@@ -43,12 +42,12 @@ public unsafe class PyObject : IDisposable
     public PyObject? Call(PyTuple args)
     {
         PythonApi314._PyObject* result = Py.Api.PyObject_CallObject(ToPyObject(), args.ToPyObject());
-        if(Py.Api.PyErr_Occurred() != null)
+        if (Py.Api.PyErr_Occurred() != null)
         {
             Py.Api.PyErr_Print();
             throw new InvalidOperationException();
         }
-        if(result is null)
+        if (result is null)
         {
             return default;
         }
@@ -105,17 +104,35 @@ public unsafe class PyObject : IDisposable
     {
         PythonApi314._PyTypeObject* pyType = (*pyobj).ob_type;
         if (pyType == Py.Api.PyUnicode_Type)
+        {
             return new PyUnicode(pyobj);
+        }
+
         if (pyType == Py.Api.PyLong_Type)
+        {
             return new PyLong(pyobj);
+        }
+
         if (pyType == Py.Api.PyFloat_Type)
+        {
             return new PyFloat(pyobj);
+        }
+
         if (pyType == Py.Api.PyTuple_Type)
+        {
             return new PyTuple(pyobj);
+        }
+
         if (pyType == Py.Api.PyBytes_Type)
+        {
             return new PyBytes(pyobj);
+        }
+
         if (pyType == Py.Api.PyByteArray_Type)
+        {
             return new PyByteArray(pyobj);
+        }
+
         return new PyObject(pyobj);
     }
 }
