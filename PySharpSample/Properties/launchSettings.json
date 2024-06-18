@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PySharpSample": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
