@@ -217,6 +217,14 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<void> PyErr_Clear;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*> PyErr_Occurred;
 
+    [Import] public _PyTypeObject* PyFloat_Type;
+    [Import] public delegate* unmanaged[Cdecl]<double> PyFloat_GetMax;
+    [Import] public delegate* unmanaged[Cdecl]<double> PyFloat_GetMin;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*> PyFloat_GetInfo;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyFloat_FromString;
+    [Import] public delegate* unmanaged[Cdecl]<double, _PyObject*> PyFloat_FromDouble;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, double>  PyFloat_AsDouble;
+
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*> PyImport_GetModuleDict;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_GetModule;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_AddModuleObject;
@@ -225,7 +233,27 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_Import;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_ReloadModule;
 
+    [Import] public _PyTypeObject* PyLong_Type;
+    [Import] public _PyTypeObject* PyBool_Type;
+
+    [Import] public delegate* unmanaged[Cdecl]<int, _PyObject*> PyLong_FromLong;
+    [Import] public delegate* unmanaged[Cdecl]<uint, _PyObject*> PyLong_FromUnsignedLong;
+    [Import] public delegate* unmanaged[Cdecl]<nint, _PyObject*> PyLong_FromSize_t;
+    [Import] public delegate* unmanaged[Cdecl]<Py_ssize_t, _PyObject*> PyLong_FromSsize_t;
+    [Import] public delegate* unmanaged[Cdecl]<double, _PyObject*> PyLong_FromDouble;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, int> PyLong_AsLong;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, uint>PyLong_AsUnsignedLong;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*> PyLong_GetInfo;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, double> PyLong_AsDouble;
+    [Import] public delegate* unmanaged[Cdecl]<void*, _PyObject*> PyLong_FromVoidPtr;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void*> PyLong_AsVoidPtr;
+    [Import] public delegate* unmanaged[Cdecl]<long, _PyObject*> PyLong_FromLongLong;
+    [Import] public delegate* unmanaged[Cdecl]<ulong, _PyObject*> PyLong_FromUnsignedLongLong;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, long> PyLong_AsLongLong;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, ulong> PyLong_AsUnsignedLongLong;
+
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*, _PyObject*> PyObject_CallObject;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyObject_CallNoArgs;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyObject_Type;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t> PyObject_Size;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t> PyObject_Length;

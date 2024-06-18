@@ -38,7 +38,7 @@ internal unsafe class PyUnicode : PyObject
         }
     }
 
-    public static PyUnicode? Convert(string s)
+    public static PyUnicode? FromString(string s)
     {
         ArgumentNullException.ThrowIfNull(s);
         fixed (char* ptr = s)

@@ -1,10 +1,16 @@
-import token
-import torch
-from diffusers import StableDiffusion3Pipeline
 from datetime import datetime
 import io
-
 import sys;
+import token
+
+import torch
+from diffusers import (
+    StableDiffusionXLPipeline, 
+    AutoencoderKL, 
+    AutoencoderTiny,
+    StableDiffusion3Pipeline)
+from diffusers.schedulers import DPMSolverMultistepScheduler
+from compel import Compel, DiffusersTextualInversionManager, ReturnedEmbeddingsType
 
 
 def sayHello(name):
@@ -51,4 +57,63 @@ def txt2image():
     data = buffer.getvalue()    
     return data    
 
-print(sys.path)
+def generateImage(modelPath: str, seed: int, prompt: str, negative_prompt: str, width: int, 
+                  height: int, steps: int, scale: float, clip_skip: int):
+    
+    pipeline = StableDiffusionXLPipeline.from_single_file(
+        modelPath,
+        torch_dtype=torch.float16, 
+        variant="fp16", 
+        use_safetensors=True).to("cuda")
+    
+    compel = Compel(
+      tokenizer = [pipeline.tokenizer, pipeline.tokenizer_2] ,
+      text_encoder = [pipeline.text_encoder, pipeline.text_encoder_2],
+      returned_embeddings_type = ReturnedEmbeddingsType.PENULTIMATE_HIDDEN_STATES_NON_NORMALIZED,
+      requires_pooled = [False, True],
+      truncate_long_prompts = False
+    )
+
+    conditioning, pooled = compel(prompt)
+    negative, pooled_negative = compel(negative_prompt)
+    [conditioning, negative] = compel.pad_conditioning_tensors_to_same_length([conditioning, negative])
+
+    scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)
+    scheduler.config.use_karras_sigmas = True
+    scheduler.config.algorithm_type = "sde-dpmsolver++"
+    pipeline.scheduler = scheduler
+
+    pipeline.enable_xformers_memory_efficient_attention()
+    if seed == -1:
+        seed = torch.seed()
+    generator = torch.Generator(device="cuda").manual_seed(seed)
+    print(f"Size: {width}x{height}")
+    image = pipeline(prompt_embeds = conditioning,
+                      pooled_prompt_embeds = pooled,
+                      negative_prompt_embeds = negative,
+                      negative_pooled_prompt_embeds = pooled_negative,
+                      guidance_scale = scale,
+                      guidance_rescale = 0,
+                      generator = generator,
+                      num_inference_steps = steps,
+                      width = width,
+                      height = height,
+                      clip_skip = clip_skip).images[0]
+    print(image)    
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")    
+    data = buffer.getvalue()    
+    return data    
+
+# model = "juggernautXL_juggernautX.safetensors"
+
+# generateImage(
+#     f"C:\\StableDiffusion\\models\\checkpoints\\{model}",
+#     -1,
+#     "HDR, editorial (full body:1.6) wide angle photograph of a beautiful young 1970s \\(style\\) redhead teen woman posing++ under a wooden dock at the ocean, waist deep in water, large waves crashing, (seductive:1.6), wet skin, ((low camera angle)), strong wind through her hair, tattoos, highly detailed face, sexy, cleavage, (sheer:1.2) shirt and panties, by lee jeffries, nikon d850, film stock photograph, 4 kodak portra 400, soft cinematic light and color, dreamlike soft focus, camera f1.6 lens, rich colors, hyper realistic, lifelike texture, dramatic lighting, cinestill 800",
+#     "child, baby, Asian, big breasts, anime, manga, anorexic, anorexia, canvas frame, text, old, mature, lazy eye, crossed eyes,  gun, drawing, overexposed, high contrast, cartoon, 3d, disfigured, bad art, deformed, extra limbs, b&w, blurry, duplicate, morbid, mutilated,  out of frame, extra fingers, mutated hands, drawing, poorly drawn hands, poorly drawn face, mutation, deformed, ugly, blurry, weapon, bad anatomy,  bad proportions, painting, extra limbs, cloned face, disfigured, out of frame, ugly, extra limbs, text, bad anatomy",
+#     896,        
+#     1152,       
+#     30,
+#     7.5,
+#     0)

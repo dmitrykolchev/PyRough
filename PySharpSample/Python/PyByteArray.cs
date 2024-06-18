@@ -1,6 +1,7 @@
 ﻿using PySharpSample.Python.Interop;
 
 namespace PySharpSample.Python;
+
 public unsafe class PyByteArray : PyObject
 {
     internal PyByteArray(PythonApi314._PyObject* handler) : base(handler)

@@ -1,4 +1,5 @@
 ﻿using PySharpSample.Python.Interop;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace PySharpSample.Python;
@@ -6,23 +7,21 @@ namespace PySharpSample.Python;
 public unsafe class PyObject : IDisposable
 {
     private bool _disposed;
-    private PythonApi314._PyObject* _handler;
+    private PythonApi314._PyObject* _pyobj;
 
-    internal PyObject(PythonApi314._PyObject* handler)
+    internal PyObject(PythonApi314._PyObject* pyobj)
     {
-        if (handler == null)
+        if (pyobj == null)
         {
             throw new InvalidOperationException();
         }
-        _handler = handler;
+        _pyobj = pyobj;
     }
 
-    internal nint Handler => (nint)_handler;
+    internal nint Handler => (nint)_pyobj;
 
-    internal PythonApi314._PyObject* ToPyObject()
-    {
-        return _handler;
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal PythonApi314._PyObject* ToPyObject() => _pyobj;
 
     public bool IsDisposed => _disposed;
 
@@ -32,7 +31,7 @@ public unsafe class PyObject : IDisposable
         fixed (byte* p = s.Data)
         {
             PythonApi314._PyObject* result = Py.Api.PyObject_GetAttrString(ToPyObject(), p);
-            return new PyObject(result);
+            return Create(result);
         }
     }
 
@@ -41,16 +40,34 @@ public unsafe class PyObject : IDisposable
         throw new NotImplementedException();
     }
 
-    public PyObject Call(PyTuple args)
+    public PyObject? Call(PyTuple args)
     {
         PythonApi314._PyObject* result = Py.Api.PyObject_CallObject(ToPyObject(), args.ToPyObject());
-        return new PyObject(result);
+        if(Py.Api.PyErr_Occurred() != null)
+        {
+            Py.Api.PyErr_Print();
+            throw new InvalidOperationException();
+        }
+        if(result is null)
+        {
+            return default;
+        }
+        return Create(result);
     }
 
-    public PyObject Call()
+    public PyObject? Call()
     {
-        PythonApi314._PyObject* result = Py.Api.PyObject_CallObject(ToPyObject(), null);
-        return new PyObject(result);
+        PythonApi314._PyObject* result = Py.Api.PyObject_CallNoArgs(ToPyObject());
+        if (Py.Api.PyErr_Occurred() != null)
+        {
+            Py.Api.PyErr_Print();
+            throw new InvalidOperationException();
+        }
+        if (result is null)
+        {
+            return default;
+        }
+        return Create(result);
     }
 
     public virtual PyTypeObject GetPyType()
@@ -66,8 +83,8 @@ public unsafe class PyObject : IDisposable
             {
                 // TODO: dispose managed state (managed objects)
             }
-            Py.Api.Py_DecRef(_handler);
-            _handler = null;
+            Py.Api.Py_DecRef(_pyobj);
+            _pyobj = null;
             _disposed = true;
         }
     }
@@ -82,5 +99,23 @@ public unsafe class PyObject : IDisposable
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    internal static PyObject Create(PythonApi314._PyObject* pyobj)
+    {
+        PythonApi314._PyTypeObject* pyType = (*pyobj).ob_type;
+        if (pyType == Py.Api.PyUnicode_Type)
+            return new PyUnicode(pyobj);
+        if (pyType == Py.Api.PyLong_Type)
+            return new PyLong(pyobj);
+        if (pyType == Py.Api.PyFloat_Type)
+            return new PyFloat(pyobj);
+        if (pyType == Py.Api.PyTuple_Type)
+            return new PyTuple(pyobj);
+        if (pyType == Py.Api.PyBytes_Type)
+            return new PyBytes(pyobj);
+        if (pyType == Py.Api.PyByteArray_Type)
+            return new PyByteArray(pyobj);
+        return new PyObject(pyobj);
     }
 }
