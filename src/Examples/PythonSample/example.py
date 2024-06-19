@@ -5,7 +5,7 @@ import token
 
 import torch
 from diffusers import StableDiffusionXLPipeline
-from diffusers.schedulers import DPMSolverMultistepScheduler
+from diffusers.schedulers import DPMSolverMultistepScheduler, EulerAncestralDiscreteScheduler
 from compel import Compel, DiffusersTextualInversionManager, ReturnedEmbeddingsType
 
 
@@ -36,6 +36,7 @@ def createPipeline(modelPath: str):
         use_safetensors=True).to("cuda")
     scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)
     scheduler.config.use_karras_sigmas = True
+    scheduler.config.euler_at_final = True    
     scheduler.config.algorithm_type = "sde-dpmsolver++"
     pipeline.scheduler = scheduler
     pipeline.enable_xformers_memory_efficient_attention()

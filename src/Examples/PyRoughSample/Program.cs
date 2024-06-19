@@ -12,36 +12,36 @@ internal class Program
 
         SayHello();
 
-        using PyModule module1 = PyModule.Import(@"example");
+        PyModule module = PyModule.Import(@"example");
         
-        using var createPipeline = module1.GetAttribute("createPipeline");
+        var createPipeline = module.GetAttribute("createPipeline");
         // @"C:\StableDiffusion\models\checkpoints\halcyonSDXL_v13NSFW.safetensors"
         //string model = @"C:\StableDiffusion\models\checkpoints\ponyDiffusionV6XL_v6StartWithThisOne.safetensors";
-        string model = @"C:\StableDiffusion\models\checkpoints\dreamDiffusionPonyBy_v1.safetensors";
-        using var pipeline = createPipeline.Call(model);
+        string model = @"C:\StableDiffusion\models\checkpoints\realcartoonXL_v6.safetensors";
+        var pipeline = createPipeline.Call(model);
         Console.WriteLine("SDXL pipeline created");
         pipeline!.Dump();
 
-        using var createPrompt = module1.GetAttribute("createPrompt");
-        using var prompt = createPrompt.Call(
+        var createPrompt = module.GetAttribute("createPrompt");
+        var prompt = createPrompt.Call(
             pipeline,
-            "score_9, score_8_up, score_7_up, score_6_up, HDR, editorial (full body:1.6) wide angle photograph of a beautiful young 1970s \\(style\\) redhead teen woman posing++ under a wooden dock at the ocean, waist deep in water, large waves crashing, (seductive:1.6), wet skin, ((low camera angle)), strong wind through her hair, tattoos, highly detailed face, sexy, cleavage, (sheer:1.2) shirt and panties, by lee jeffries, nikon d850, film stock photograph, 4 kodak portra 400, soft cinematic light and color, dreamlike soft focus, camera f1.6 lens, rich colors, hyper realistic, lifelike texture, dramatic lighting, cinestill 800, rating_explicit",
+            "score_9, score_8_up, score_7_up, score_6_up, realistic, raw, rating_explicit, editorial (full body:1.6) wide angle photograph of a beautiful young 1970s \\(style\\) redhead teen woman posing++ under a wooden dock at the ocean, waist deep in water, large waves crashing, (seductive:1.6), wet skin, ((low camera angle)), strong wind through her hair, tattoos, highly detailed face, sexy, cleavage, (sheer:1.2) shirt and panties, by lee jeffries, nikon d850, film stock photograph, 4 kodak portra 400, soft cinematic light and color, dreamlike soft focus, camera f1.6 lens, rich colors, hyper realistic, lifelike texture, dramatic lighting, cinestill 800",
             "child, baby, Asian, big breasts, anime, manga, anorexic, anorexia, canvas frame, text, old, mature, lazy eye, crossed eyes,  gun, drawing, overexposed, high contrast, cartoon, 3d, disfigured, bad art, deformed, extra limbs, b&w, blurry, duplicate, morbid, mutilated,  out of frame, extra fingers, mutated hands, drawing, poorly drawn hands, poorly drawn face, mutation, deformed, ugly, blurry, weapon, bad anatomy,  bad proportions, painting, extra limbs, cloned face, disfigured, out of frame, ugly, extra limbs, text, bad anatomy"
             );
 
         Console.WriteLine("prompt created");
         prompt!.Dump();
 
-        using var generateImage = module1.GetAttribute("generateImage");
-        using var p = PyTuple.FromList(
+        var generateImage = module.GetAttribute("generateImage");
+        var p = PyTuple.FromList(
             pipeline,
             prompt,
             -1,
-            896,        // width
+            816,        // width
             1152,       // height
-            30,
+            50,
             7.5,
-            0);
+            1);
         for (int i = 0; i < 10; ++i)
         {
             GenerateImage(generateImage, p);
@@ -97,7 +97,11 @@ print(s)
         Span<byte> chunk = stackalloc byte[1024];
         int length = result.GetLength();
 
-        string path = "C:\\Projects\\2024\\PythonInterop\\src\\Examples\\PyRoughSample\\images";
+        string path = "C:\\Projects\\2024\\PythonInterop\\images";
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
         string fileName = Path.Combine(path, $"net_{DateTime.UtcNow.ToString("yyyyMMdd_HHmmss")}.png");
 
         using (var output = File.Create(fileName))

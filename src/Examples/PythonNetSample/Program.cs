@@ -34,7 +34,7 @@ internal class Program
 
         var createPipeline = module.GetAttr("createPipeline");
 
-        string model = @"C:\StableDiffusion\models\checkpoints\ponyDiffusionV6XL_v6StartWithThisOne.safetensors";
+        string model = @"C:\StableDiffusion\models\checkpoints\damnPonyxlRealistic_damnV20EXTREME.safetensors";
         
         var pipeline = createPipeline.Invoke(model);
         Console.WriteLine("SDXL pipeline created");
@@ -42,8 +42,8 @@ internal class Program
         var createPrompt = module.GetAttr("createPrompt");
         var prompt = createPrompt.Invoke(
             pipeline,
-            "score_9, score_8_up, score_7_up, score_6_up, sex anal, HDR, editorial (full body:1.6) wide angle photograph of a beautiful young 1970s \\(style\\) redhead teen woman posing++ under a wooden dock at the ocean, waist deep in water, large waves crashing, (seductive:1.6), wet skin, ((low camera angle)), strong wind through her hair, tattoos, highly detailed face, sexy, cleavage, (sheer:1.2) shirt and panties, film stock photograph, soft cinematic light and color, dreamlike soft focus, rich colors, hyper realistic, lifelike texture, dramatic lighting, rating_explicit",
-            "child, baby, Asian, big breasts, anime, manga, anorexic, anorexia, canvas frame, text, old, mature, lazy eye, crossed eyes,  gun, drawing, overexposed, high contrast, cartoon, 3d, disfigured, bad art, deformed, extra limbs, b&w, blurry, duplicate, morbid, mutilated,  out of frame, extra fingers, mutated hands, drawing, poorly drawn hands, poorly drawn face, mutation, deformed, ugly, blurry, weapon, bad anatomy,  bad proportions, painting, extra limbs, cloned face, disfigured, out of frame, ugly, extra limbs, text, bad anatomy"
+            "score_9, score_8_up, score_7_up, score_6_up, 1girl, gloves, stockings, lace collar, dark dungeon\r\ngloves, dynamic view angle, dynamic position, reading a book, long hair\r\nconcept art, realistic, lie on back, leaning to king size bed, combat boots, bra, mini skirt, raw, (dark skinned girl:1.4), d4rk01l",
+            "score_6_up, score_5_up, score_4_up, female, woman, girl, she, text, watermark, low-quality, signature, moir pattern, downsampling, aliasing, distorted, blurry, glossy, blur, jpeg artifacts, compression artifacts, poorly drawn, low-resolution, bad, distortion, twisted, excessive, exaggerated pose, exaggerated limbs, grainy, symmetrical, duplicate, error, pattern, beginner, pixelated, fake, hyper, glitch, overexposed, high-contrast, bad-contrast, (panties:1.6)"
             );
 
         Console.WriteLine("prompt created");
@@ -54,9 +54,9 @@ internal class Program
             pipeline,
             prompt,
             -1,
-            896,        // width
-            1152,       // height
-            30,
+            512,        // width
+            512,       // height
+            25,
             7.5,
             0);
         for (int i = 0; i < 10; ++i)
