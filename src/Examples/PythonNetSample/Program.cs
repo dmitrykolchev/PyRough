@@ -1,4 +1,5 @@
 ﻿using Python.Runtime;
+using System.Reflection;
 
 namespace PythonNetSample;
 
@@ -31,11 +32,37 @@ internal class Program
 
         using var module = PyModule.Import("example");
 
-        using var createPipeline = module.GetAttr("createPipeline");
+        var createPipeline = module.GetAttr("createPipeline");
 
-        string model = @"C:\StableDiffusion\models\checkpoints\dreamDiffusionPonyBy_v1.safetensors";
-        using var pipeline = createPipeline.Invoke(model);
+        string model = @"C:\StableDiffusion\models\checkpoints\ponyDiffusionV6XL_v6StartWithThisOne.safetensors";
+        
+        var pipeline = createPipeline.Invoke(model);
         Console.WriteLine("SDXL pipeline created");
+
+        var createPrompt = module.GetAttr("createPrompt");
+        var prompt = createPrompt.Invoke(
+            pipeline,
+            "score_9, score_8_up, score_7_up, score_6_up, sex anal, HDR, editorial (full body:1.6) wide angle photograph of a beautiful young 1970s \\(style\\) redhead teen woman posing++ under a wooden dock at the ocean, waist deep in water, large waves crashing, (seductive:1.6), wet skin, ((low camera angle)), strong wind through her hair, tattoos, highly detailed face, sexy, cleavage, (sheer:1.2) shirt and panties, film stock photograph, soft cinematic light and color, dreamlike soft focus, rich colors, hyper realistic, lifelike texture, dramatic lighting, rating_explicit",
+            "child, baby, Asian, big breasts, anime, manga, anorexic, anorexia, canvas frame, text, old, mature, lazy eye, crossed eyes,  gun, drawing, overexposed, high contrast, cartoon, 3d, disfigured, bad art, deformed, extra limbs, b&w, blurry, duplicate, morbid, mutilated,  out of frame, extra fingers, mutated hands, drawing, poorly drawn hands, poorly drawn face, mutation, deformed, ugly, blurry, weapon, bad anatomy,  bad proportions, painting, extra limbs, cloned face, disfigured, out of frame, ugly, extra limbs, text, bad anatomy"
+            );
+
+        Console.WriteLine("prompt created");
+        prompt!.Dump();
+
+        PyObject generateImage = module.GetAttr("generateImage");
+        PyTuple p = PyTuple.Create(
+            pipeline,
+            prompt,
+            -1,
+            896,        // width
+            1152,       // height
+            30,
+            7.5,
+            0);
+        for (int i = 0; i < 10; ++i)
+        {
+            GenerateImage(generateImage, p);
+        }
 
         PythonEngine.Shutdown();
     }
@@ -59,29 +86,35 @@ print(s)
         SaveImage(result);
     }
 
-    private static void SaveImage(PyObject result)
+    private static void SaveImage(PyObject bytes)
     {
-        //byte[] data = result.ToArray();
-        //Span<byte> chunk = stackalloc byte[1024];
-        //int length = result.GetLength();
+        PyBytes result = new (bytes);
 
-        //string path = "C:\\Projects\\2024\\PythonInterop\\src\\Examples\\PyRoughSample\\images";
-        //string fileName = Path.Combine(path, $"net_{DateTime.UtcNow.ToString("yyyyMMdd_HHmmss")}.png");
+        byte[] data = result.ToArray();
+        Span<byte> chunk = stackalloc byte[1024];
+        int length = result.Size;
 
-        //using (var output = File.Create(fileName))
-        //{
-        //    for (int offset = 0; offset < length;)
-        //    {
-        //        int read = result.Read(chunk, offset);
-        //        if (read == 0)
-        //        {
-        //            break;
-        //        }
-        //        output.Write(chunk.Slice(0, read));
-        //        offset += read;
-        //    }
-        //}
-        //Console.WriteLine($"Image written to {fileName}");
+        string path = "C:\\Projects\\2024\\PythonInterop\\images";
+        if(!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+        string fileName = Path.Combine(path, $"net_{DateTime.UtcNow.ToString("yyyyMMdd_HHmmss")}.png");
+
+        using (var output = File.Create(fileName))
+        {
+            for (int offset = 0; offset < length;)
+            {
+                int read = result.Read(chunk, offset);
+                if (read == 0)
+                {
+                    break;
+                }
+                output.Write(chunk.Slice(0, read));
+                offset += read;
+            }
+        }
+        Console.WriteLine($"Image written to {fileName}");
     }
 
 }
