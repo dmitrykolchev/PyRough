@@ -171,9 +171,9 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> Py_DecRef;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> _Py_Dealloc;
 
-    [Import] public delegate* unmanaged[Cdecl]<char*, void> Py_SetProgramName;
-    [Import] public delegate* unmanaged[Cdecl]<char*, void> Py_SetPythonHome;
-    [Import] public delegate* unmanaged[Cdecl]<char*, void> Py_SetPath;
+    [Import] public delegate* unmanaged[Cdecl]<UcsNativeString, void> Py_SetProgramName;
+    [Import] public delegate* unmanaged[Cdecl]<UcsNativeString, void> Py_SetPythonHome;
+    [Import] public delegate* unmanaged[Cdecl]<UcsNativeString, void> Py_SetPath;
 
 
     [Import] public _PyTypeObject* PyByteArray_Type;
@@ -229,7 +229,7 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_GetModule;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_AddModuleObject;
     [Import] public delegate* unmanaged[Cdecl]<byte*, _PyObject*> PyImport_AddModule;
-    [Import] public delegate* unmanaged[Cdecl]<byte*, _PyObject*> PyImport_ImportModule;
+    [Import] public delegate* unmanaged[Cdecl]<Utf8NativeString, _PyObject*> PyImport_ImportModule;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_Import;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_ReloadModule;
 
@@ -259,8 +259,8 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t> PyObject_Length;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*, _PyObject*> PyObject_GetItem;
     [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*, _PyObject*, int> PyObject_SetItem;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, byte*, _PyObject*> PyObject_GetAttrString;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, byte*, _PyObject*, int> PyObject_SetAttrString;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Utf8NativeString, _PyObject*> PyObject_GetAttrString;
+    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Utf8NativeString, _PyObject*, int> PyObject_SetAttrString;
 
     [StructLayout(LayoutKind.Sequential)]
     public struct _PyCompilerFlags
@@ -268,7 +268,7 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
         public int cf_flags;
         public int cf_feature_version;
     }
-    [Import] public delegate* unmanaged[Cdecl]<byte*, _PyCompilerFlags*, int> PyRun_SimpleStringFlags;
+    [Import] public delegate* unmanaged[Cdecl]<Utf8NativeString, _PyCompilerFlags*, int> PyRun_SimpleStringFlags;
     [Import] public delegate* unmanaged[Cdecl]<byte*, int, _PyObject*, _PyObject*, _PyCompilerFlags*, _PyObject*> PyRun_StringFlags;
 
     [Import] public _PyTypeObject* PyTuple_Type;

@@ -1,10 +1,14 @@
 ﻿using PyRough.Python.Interop;
+using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
 namespace PyRough.Python;
 
 public unsafe class PyObject : IDisposable
 {
+    private static long CurrentObjectId = 0;
+    private long _objectId;
     private bool _disposed;
     private PythonApi314._PyObject* _pyobj;
 
@@ -14,24 +18,33 @@ public unsafe class PyObject : IDisposable
         {
             throw new InvalidOperationException();
         }
+        _objectId = Interlocked.Increment(ref CurrentObjectId);
         _pyobj = pyobj;
+        Console.WriteLine($"PyObject created [{_objectId}], RefCount: {GetRefCount()}");
     }
+
+    public long ObjectId => _objectId;
 
     internal nint Handler => (nint)_pyobj;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal PythonApi314._PyObject* ToPyObject() => _pyobj;
 
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal nint GetRefCount()
+    {
+        return (*ToPyObject()).ob_refcnt;
+    }
+
     public bool IsDisposed => _disposed;
 
     public PyObject GetAttribute(string name)
     {
-        Utf8String s = Utf8String.Create(name);
-        fixed (byte* p = s.Data)
-        {
-            PythonApi314._PyObject* result = PyEngine.Api.PyObject_GetAttrString(ToPyObject(), p);
-            return Create(result);
-        }
+        VerifyDisposed();
+        using Utf8NativeString s = new (name);
+        PythonApi314._PyObject* result = PyEngine.Api.PyObject_GetAttrString(ToPyObject(), s);
+        return Create(result);
     }
 
     public void SetAttribute(string name, PyObject value)
@@ -93,6 +106,14 @@ public unsafe class PyObject : IDisposable
             {
                 // TODO: dispose managed state (managed objects)
             }
+            if(GetRefCount() == 1)
+            {
+                Console.WriteLine($"PyObject will be deallocated [{ObjectId}]");
+                if(ObjectId == 20)
+                {
+                    Debugger.Break();
+                }
+            }
             PyEngine.Api.Py_DecRef(_pyobj);
             _pyobj = null;
             _disposed = true;
@@ -109,6 +130,14 @@ public unsafe class PyObject : IDisposable
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    protected void VerifyDisposed()
+    {
+        if(IsDisposed)
+        {
+            throw new ObjectDisposedException(ObjectId.ToString());
+        }
     }
 
     internal static PyObject Create(PythonApi314._PyObject* pyobj)

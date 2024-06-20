@@ -34,31 +34,30 @@ internal class Program
 
         var createPipeline = module.GetAttr("createPipeline");
 
-        string model = @"C:\StableDiffusion\models\checkpoints\damnPonyxlRealistic_damnV20EXTREME.safetensors";
-        
+        string model = @"C:\StableDiffusion\models\checkpoints\ponyDiffusionV6XL_v6StartWithThisOne.safetensors";
+
         var pipeline = createPipeline.Invoke(model);
         Console.WriteLine("SDXL pipeline created");
 
         var createPrompt = module.GetAttr("createPrompt");
         var prompt = createPrompt.Invoke(
             pipeline,
-            "score_9, score_8_up, score_7_up, score_6_up, 1girl, gloves, stockings, lace collar, dark dungeon\r\ngloves, dynamic view angle, dynamic position, reading a book, long hair\r\nconcept art, realistic, lie on back, leaning to king size bed, combat boots, bra, mini skirt, raw, (dark skinned girl:1.4), d4rk01l",
-            "score_6_up, score_5_up, score_4_up, female, woman, girl, she, text, watermark, low-quality, signature, moir pattern, downsampling, aliasing, distorted, blurry, glossy, blur, jpeg artifacts, compression artifacts, poorly drawn, low-resolution, bad, distortion, twisted, excessive, exaggerated pose, exaggerated limbs, grainy, symmetrical, duplicate, error, pattern, beginner, pixelated, fake, hyper, glitch, overexposed, high-contrast, bad-contrast, (panties:1.6)"
+            "score_9, score_8_up, score_7_up, Expressiveh, one sexy dark-skinned Mexican girl, long wet hair, female focus, lustrous skin, parted lips, slender, large breasts, through breasts silhouette, blurry body silhouette, naked transparent shirt, oversized shirt, shirt overhang, see-through shirt, see-through silhouette, HD32k, expressiveh, arched back, sexy pose, under an outdoor shower, wet skin, wet hair, perfect body, wide hips, narrow waist, barefoot, bottomless, perfect innie pussy, tight thin labia, hands on own head, wet hair, wet skin, wet shirt, supermodel pose, chest thrust out, outdoors, on the beach, sun high in the sky, well lit, sexy trimmed pubic hair, standing, showering, eyes closed, 3/4 angle view, three quarter view, view from below, (head titled up:1.4), (outdoor shower), arched back, contrapposto pose, (3/4 view:1.5),  (wet hair:1.4)",
+            "score_6, score_5, score_4, pony, gaping, muscular, censored, furry, milf, child, kid, chibi, monochrome, grayscale, bra, panties, upturned eyes"
             );
 
         Console.WriteLine("prompt created");
-        prompt!.Dump();
 
         PyObject generateImage = module.GetAttr("generateImage");
         PyTuple p = PyTuple.Create(
             pipeline,
             prompt,
             -1,
-            512,        // width
-            512,       // height
-            25,
+            816,           // width
+            1152,           // height
+            50,
             7.5,
-            0);
+            1);
         for (int i = 0; i < 10; ++i)
         {
             GenerateImage(generateImage, p);

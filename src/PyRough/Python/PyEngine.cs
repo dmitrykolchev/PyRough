@@ -39,19 +39,11 @@ public unsafe partial class PyEngine
 
     private void Initialize(string programName, string home, string path)
     {
-        fixed (char* p = programName)
-        {
-            _api.Py_SetProgramName(p);
-        }
-        fixed (char* p = home)
-        {
-            _api.Py_SetPythonHome(p);
-        }
-        fixed (char* p = path)
-        {
-            _api.Py_SetPath(p);
-        }
-        _api.Py_InitializeEx(1);
+        _api.Py_SetProgramName(new UcsNativeString(programName));
+        _api.Py_SetPythonHome(new UcsNativeString(home));
+        _api.Py_SetPath(new UcsNativeString(path));
+
+        _api.Py_InitializeEx(0);
     }
 
     /// <summary>
@@ -61,10 +53,7 @@ public unsafe partial class PyEngine
     /// <returns></returns>
     public static int Run(string script)
     {
-        Utf8String buffer = Utf8String.Create(script);
-        fixed (byte* ptr = buffer.Data)
-        {
-            return Api.PyRun_SimpleStringFlags(ptr, null);
-        }
+        using Utf8NativeString buffer = new (script);
+        return Api.PyRun_SimpleStringFlags(buffer, null);
     }
 }

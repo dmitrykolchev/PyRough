@@ -31,13 +31,13 @@ def createPipeline(modelPath: str):
     torch.set_grad_enabled(False)    
     pipeline = StableDiffusionXLPipeline.from_single_file(
         modelPath,
-        torch_dtype=torch.float16, 
+        torch_dtype=torch.bfloat16, 
         variant="fp16", 
         use_safetensors=True).to("cuda")
-    scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)
-    scheduler.config.use_karras_sigmas = True
-    scheduler.config.euler_at_final = True    
-    scheduler.config.algorithm_type = "sde-dpmsolver++"
+    scheduler = EulerAncestralDiscreteScheduler.from_config(pipeline.scheduler.config)
+    scheduler.config.use_karras_sigmas = False
+    # scheduler.config.euler_at_final = True    
+    # scheduler.config.algorithm_type = "sde-dpmsolver++"
     pipeline.scheduler = scheduler
     pipeline.enable_xformers_memory_efficient_attention()
     pipeline.enable_model_cpu_offload()
