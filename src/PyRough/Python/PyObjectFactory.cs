@@ -87,6 +87,11 @@ internal class PyObjectFactory
             return new PyList(handle);
         }
 
+        if (pyType == Runtime.Api.PyDict_Type)
+        {
+            return new PyDict(handle);
+        }
+
         if (pyType == Runtime.Api.PyModule_Type)
         {
             return new PyModule(handle);

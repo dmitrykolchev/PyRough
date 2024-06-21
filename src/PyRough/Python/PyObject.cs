@@ -10,6 +10,10 @@ public unsafe class PyObject : IDisposable
     private bool _disposed;
     private PyObjectHandle _handle;
 
+    internal PyObject()
+    {
+    }
+
     internal PyObject(PyObjectHandle handle)
     {
         if (handle.IsNull)
@@ -87,11 +91,6 @@ public unsafe class PyObject : IDisposable
     {
         if (!_disposed)
         {
-            if (Handle.GetRefCount() == 1)
-            {
-                string s = ToString() ?? string.Empty;
-                Console.WriteLine($"{GetType()} will be deallocated [{ObjectId}]\n\t{s.Substring(0, Math.Min(s.Length, 128))}");
-            }
             Handle.Release();
             _handle = PyObjectHandle.Null;
             _disposed = true;
@@ -129,4 +128,25 @@ public unsafe class PyObject : IDisposable
     {
         return Handle.Handle.GetHashCode();
     }
+
+    internal void Attach(PyObjectHandle handle)
+    {
+        if (handle.IsNull)
+        {
+            throw new ArgumentNullException(nameof(handle));
+        }
+        if (!_handle.IsNull)
+        {
+            _handle.Release();
+        }
+        _handle = handle;
+    }
+
+    internal PyObjectHandle Detach()
+    {
+        PyObjectHandle result = _handle;
+        _handle = PyObjectHandle.Null;
+        return result;
+    }
+
 }

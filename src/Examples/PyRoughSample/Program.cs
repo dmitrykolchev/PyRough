@@ -17,7 +17,9 @@ internal class Program
         var createPipeline = module.GetAttr("createPipeline")!;
         // @"C:\StableDiffusion\models\checkpoints\halcyonSDXL_v13NSFW.safetensors"
         //string model = @"C:\StableDiffusion\models\checkpoints\ponyDiffusionV6XL_v6StartWithThisOne.safetensors";
-        string model = @"C:\StableDiffusion\models\checkpoints\realcartoonXL_v6.safetensors";
+        //string model = @"C:\StableDiffusion\models\checkpoints\realcartoonXL_v6.safetensors";
+        string model = @"C:\StableDiffusion\models\checkpoints\juggernautXL_juggernautX.safetensors";
+
         List<(string, double)> loras = [
             ("Fant5yP0ny", 0.7),
             ("Expressive_H-000001", 0.6),
@@ -52,7 +54,7 @@ internal class Program
                30,
                7.5,
                1);
-            GenerateImage(generateImage, p);
+            using PyDict? result = GenerateImage(generateImage, p);
         }
     }
 
@@ -92,10 +94,15 @@ print(s)
         Console.WriteLine(Runtime.Run(script2));
     }
 
-    private static void GenerateImage(PyObject generateImage, PyTuple p)
+    private static PyDict? GenerateImage(PyObject generateImage, PyTuple p)
     {
-        using PyBytes result = (PyBytes)generateImage.Invoke(p)!;
-        SaveImage(result);
+        PyObject result = generateImage.Invoke(p)!;
+        if (result is PyDict dict)
+        {
+            SaveImage((PyBytes)dict.GetItem("image"));
+            return dict;
+        }
+        return null;
     }
 
     private static void SaveImage(PyBytes result)

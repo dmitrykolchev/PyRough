@@ -66,10 +66,11 @@ def createPipeline(modelPath: str, loras: list):
     print(adapters, weights)        
     pipeline.set_adapters(adapters, weights)    
 
-    scheduler = EulerAncestralDiscreteScheduler.from_config(pipeline.scheduler.config)
-    scheduler.config.use_karras_sigmas = False
-    # scheduler.config.euler_at_final = True    
-    # scheduler.config.algorithm_type = "sde-dpmsolver++"
+    # scheduler = EulerAncestralDiscreteScheduler.from_config(pipeline.scheduler.config)
+    scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)    
+    scheduler.config.use_karras_sigmas = True
+    scheduler.config.euler_at_final = True    
+    scheduler.config.algorithm_type = "sde-dpmsolver++"
     pipeline.scheduler = scheduler
     
     pipeline.enable_xformers_memory_efficient_attention()
@@ -90,17 +91,19 @@ def createPrompt(pipeline:object, prompt: str, negative_prompt: str):
     [conditioning, negative] = compel.pad_conditioning_tensors_to_same_length([conditioning, negative])
     return [conditioning, pooled, negative, pooled_negative];
 
-def generateImage(pipeline: object, prompt, 
+def generateImage(pipeline: object, 
+                  prompt: list, 
                   seed: int, 
                   width: int, height: int, 
                   steps: int, 
                   scale: float, 
                   clip_skip: int):
-    
+   
     if seed == -1:
         seed = torch.seed()
 
     generator = torch.Generator(device="cuda").manual_seed(seed)
+    
     print(f"Size: {width}x{height}")
     image = pipeline(prompt_embeds = prompt[0],                     #.conditioning,
                       pooled_prompt_embeds = prompt[1],             #.pooled,
@@ -117,5 +120,11 @@ def generateImage(pipeline: object, prompt,
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")    
     data = buffer.getvalue()    
-    return data    
+    return {"scale": scale, 
+            "image": data, 
+            "seed": seed, 
+            "width": width, 
+            "height": height, 
+            "clip_skip": clip_skip
+            }
 
