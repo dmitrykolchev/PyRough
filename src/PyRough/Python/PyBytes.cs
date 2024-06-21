@@ -6,20 +6,17 @@ public unsafe class PyBytes : PyObject
 {
     internal PyBytes(PyObjectHandle handle) : base(handle)
     {
-    }
-
-    public static PyBytes FromObject(PyObject obj)
-    {
-        return new PyBytes(Runtime.Api.PyBytes_FromObject(obj.Handle));
-    }
-
-    internal static PyObjectHandle FromStringAndSize(ReadOnlySpan<byte> bytes)
-    {
-        fixed (byte* ptr = bytes)
+        if (handle.GetPyType().Handle != Runtime.Api.PyBytes_Type)
         {
-            return Runtime.Api.PyBytes_FromStringAndSize(ptr, bytes.Length);
+            throw new InvalidCastException();
         }
     }
+
+    public PyBytes(byte[] bytes): this(FromStringAndSize(bytes))
+    {
+    }
+
+    public int Length => GetLength();
 
     public int GetLength()
     {
@@ -28,7 +25,7 @@ public unsafe class PyBytes : PyObject
 
     public int Read(Span<byte> bytes, int offset)
     {
-        ReadOnlySpan<byte> result = Runtime.PyBytes_AsStringAndSize(Handle);
+        ReadOnlySpan<byte> result = AsStringAndSize(Handle);
         if (offset >= result.Length)
         {
             throw new ArgumentOutOfRangeException(nameof(offset));
@@ -44,9 +41,30 @@ public unsafe class PyBytes : PyObject
 
     public byte[] ToArray()
     {
-        var result = Runtime.PyBytes_AsStringAndSize(Handle);
+        var result = AsStringAndSize(Handle);
         byte[] array = new byte[result.Length];
         result.CopyTo(array);
         return array;
+    }
+
+    public static PyBytes FromObject(PyObject obj)
+    {
+        return new PyBytes(Runtime.Api.PyBytes_FromObject(obj.Handle));
+    }
+
+    internal static PyObjectHandle FromStringAndSize(ReadOnlySpan<byte> bytes)
+    {
+        fixed (byte* ptr = bytes)
+        {
+            return Runtime.Api.PyBytes_FromStringAndSize(ptr, bytes.Length);
+        }
+    }
+
+    internal static unsafe ReadOnlySpan<byte> AsStringAndSize(PyObjectHandle ob)
+    {
+        byte* bytes;
+        nint size;
+        int result = Runtime.Api.PyBytes_AsStringAndSize(ob, &bytes, &size);
+        return new ReadOnlySpan<byte>(bytes, size.ToInt32());
     }
 }

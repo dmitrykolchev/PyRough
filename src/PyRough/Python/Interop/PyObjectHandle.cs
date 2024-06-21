@@ -32,7 +32,7 @@ internal unsafe struct PyObjectHandle : IPyNativeHandle
         return new PyTypeObjectHandle(_pobj[0].ob_type);
     }
 
-    public PyObjectHandle AddRef()
+    internal PyObjectHandle AddRef()
     {
         if (IsNull)
         {
@@ -42,7 +42,7 @@ internal unsafe struct PyObjectHandle : IPyNativeHandle
         return this;
     }
 
-    public void Release()
+    internal void Release()
     {
         if (IsNull)
         {
@@ -53,7 +53,7 @@ internal unsafe struct PyObjectHandle : IPyNativeHandle
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public nint GetRefCount()
+    internal nint GetRefCount()
     {
         if (IsNull)
         {

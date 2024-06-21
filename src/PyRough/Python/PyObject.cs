@@ -18,14 +18,13 @@ public unsafe class PyObject : IDisposable
         }
         _objectId = Interlocked.Increment(ref CurrentObjectId);
         _handle = handle;
-        Console.WriteLine($"PyObject created [{_objectId}], RefCount: {_handle.GetRefCount()}");
     }
 
-    public long ObjectId => _objectId;
+    internal long ObjectId => _objectId;
+
+    internal bool IsDisposed => _disposed;
 
     internal PyObjectHandle Handle => _handle;
-
-    public bool IsDisposed => _disposed;
 
     public PyObject? GetAttr(string name)
     {
@@ -33,7 +32,7 @@ public unsafe class PyObject : IDisposable
         PyObjectHandle result = Runtime.Api.PyObject_GetAttrString(Handle, s);
         if(result.IsNull)
         {
-            return null;
+            return Runtime.None;
         }
         return PyObjectFactory.Wrap(result, true);
     }

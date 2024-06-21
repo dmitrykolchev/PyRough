@@ -13,11 +13,11 @@ public unsafe class PyList : PyObject
         }
     }
 
-    public unsafe PyList(int size) : base(Runtime.Api.PyList_New(size))
+    public unsafe PyList(int size) : this(Runtime.Api.PyList_New(size))
     {
     }
 
-    public PyList(IEnumerable items) : base(Create(items))
+    public PyList(IEnumerable items) : this(Create(items))
     {
     }
 

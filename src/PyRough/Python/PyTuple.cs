@@ -1,6 +1,4 @@
 ﻿using PyRough.Python.Interop;
-using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 namespace PyRough.Python;
@@ -15,32 +13,12 @@ public unsafe class PyTuple : PyObject
         }
     }
 
-    public PyTuple(int size) : base(Runtime.Api.PyTuple_New(size))
+    public PyTuple(int size) : this(Runtime.Api.PyTuple_New(size))
     {
     }
 
-    public PyTuple(params object?[] values) : base(FromList(values))
+    public PyTuple(params object?[] values) : this(FromList(values))
     {
-    }
-
-    internal static PyObjectHandle FromTuple(ITuple tuple)
-    {
-        PyObjectHandle result = Runtime.Api.PyTuple_New(tuple.Length);
-        for(int i = 0; i < tuple.Length; ++i)
-        {
-            SetItemInternal(result, i, PyObjectFactory.FromClrObject(tuple[i]));
-        }
-        return result;
-    }
-
-    internal static PyObjectHandle FromList(params object?[] values)
-    {
-        PyObjectHandle result = Runtime.Api.PyTuple_New(values.Length);
-        for (int i = 0; i < values.Length; ++i)
-        {
-            SetItemInternal(result, i, PyObjectFactory.FromClrObject(values[i]));
-        }
-        return result;
     }
 
     public PyObject this[int index]
@@ -74,4 +52,25 @@ public unsafe class PyTuple : PyObject
     {
         return Runtime.Api.PyTuple_GetItem(Handle, index);
     }
+
+    internal static PyObjectHandle FromTuple(ITuple tuple)
+    {
+        PyObjectHandle result = Runtime.Api.PyTuple_New(tuple.Length);
+        for (int i = 0; i < tuple.Length; ++i)
+        {
+            SetItemInternal(result, i, PyObjectFactory.FromClrObject(tuple[i]));
+        }
+        return result;
+    }
+
+    internal static PyObjectHandle FromList(params object?[] values)
+    {
+        PyObjectHandle result = Runtime.Api.PyTuple_New(values.Length);
+        for (int i = 0; i < values.Length; ++i)
+        {
+            SetItemInternal(result, i, PyObjectFactory.FromClrObject(values[i]));
+        }
+        return result;
+    }
+
 }

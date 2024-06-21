@@ -12,31 +12,16 @@ public unsafe class PyLong : PyObject
         }
     }
 
-    public PyLong(int value) : base(FromInt32(value))
+    public PyLong(int value) : this(FromInt32(value))
     {
     }
 
-    public PyLong(long value): base(FromInt64(value))
+    public PyLong(long value): this(FromInt64(value))
     {
     }
 
-    public PyLong(double value): base(FromDouble(value))
+    public PyLong(double value): this(FromDouble(value))
     {
-    }
-
-    internal static PyObjectHandle FromInt64(long value)
-    {
-        return Runtime.Api.PyLong_FromLongLong(value);
-    }
-
-    internal static PyObjectHandle FromInt32(int value)
-    {
-        return Runtime.Api.PyLong_FromLong(value);
-    }
-
-    internal static PyObjectHandle FromDouble(double value)
-    {
-        return Runtime.Api.PyLong_FromDouble(value);
     }
 
     public static explicit operator long(PyLong value)
@@ -68,4 +53,20 @@ public unsafe class PyLong : PyObject
     {
         return Runtime.Api.PyLong_AsDouble(Handle);
     }
+
+    internal static PyObjectHandle FromInt64(long value)
+    {
+        return Runtime.Api.PyLong_FromLongLong(value);
+    }
+
+    internal static PyObjectHandle FromInt32(int value)
+    {
+        return Runtime.Api.PyLong_FromLong(value);
+    }
+
+    internal static PyObjectHandle FromDouble(double value)
+    {
+        return Runtime.Api.PyLong_FromDouble(value);
+    }
+
 }

@@ -8,11 +8,11 @@ internal unsafe class PyString : PyObject
     {
         if (o.GetPyType().Handle != Runtime.Api.PyUnicode_Type)
         {
-            throw new ArgumentException();
+            throw new InvalidCastException();
         }
     }
 
-    public PyString(string value): base(FromString(value))
+    public PyString(string value): this(FromString(value))
     {
     }
 
