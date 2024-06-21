@@ -1,6 +1,4 @@
 ﻿using Python.Runtime;
-using static System.Net.Mime.MediaTypeNames;
-using System.Reflection.Metadata;
 
 namespace PythonNetSample;
 
@@ -46,7 +44,7 @@ internal class Program
             //"score_9, score_8_up, score_7_up, Expressiveh, one sexy dark-skinned Mexican girl, long wet hair, female focus, lustrous skin, parted lips, slender, large breasts, through breasts silhouette, blurry body silhouette, naked transparent shirt, oversized shirt, shirt overhang, see-through shirt, see-through silhouette, HD32k, expressiveh, arched back, sexy pose, under an outdoor shower, wet skin, wet hair, perfect body, wide hips, narrow waist, barefoot, bottomless, perfect innie pussy, tight thin labia, hands on own head, wet hair, wet skin, wet shirt, supermodel pose, chest thrust out, outdoors, on the beach, sun high in the sky, well lit, sexy trimmed pubic hair, standing, showering, eyes closed, 3/4 angle view, three quarter view, view from below, (head titled up:1.4), (outdoor shower), arched back, contrapposto pose, (3/4 view:1.5),  (wet hair:1.4)",
             //"score_9, score_8_up, score_7_up,  1girl, valkyrie in gorgeous armor is holding a spear in hand, (side view, solo:1.1), standing, golden laurel wreath crown, goddess, pale skin, beautiful face, armored dress, wings, looking at viewer, cloudy sky, holy light, light from clouds, fantasy theme, expressiveh, d4rk01l",
             //"score_9, score_8_up, score_8, score_7_up, score_7, score_6_up, score_6, score_5_up, Score_5, girl, beautiful face, turn back, wet small hair,  narrow hips , naked, juicy ass, sexy adult  , posing , halfbody portrait , back view , bathroom , wet , soapy body , foam , shower , from below , luxury bathroom , blue tiles , dynamic",
-            "score_9, score_8_up, score_8_up, 1girl, in a bathtub, naked, soap,  ((sexy eye contact)), parted lips, kneeling, Ass up,  nsfw,  ((licking cock)), wet skin, showing off her body,  dreamy eyes, sweaty skin, panam palmer, arching back,  fit body, thick thighs,, thin waists, godrays, shower tiles, bathroom interior, steam, rain, view from above,  chairs, g0thicPXL, GTA,",
+            "score_9, score_8_up, score_8_up, 1girl, in a bathtub, naked, soap,  ((sexy eye contact)), parted lips, kneeling, Ass up,  nsfw,  wet skin, showing off her body,  dreamy eyes, sweaty skin, panam palmer, arching back,  fit body, thick thighs,, thin waists, godrays, shower tiles, bathroom interior, steam, rain, view from above, chairs, expressiveh, d4rk01l",
             //"score_6, score_5, score_4, pony, gaping, muscular, censored, furry, milf, child, kid, chibi, monochrome, grayscale, bra, panties, upturned eyes"
             //"score_6, score_5, score_4, pony, muscular, censored, furry"
             //"core_6, score_5, score_4, worst quality, low quality, text, censored, deformed, bad hand, blurry, (watermark), multiple phones, weights, bunny ears, extra hands,"
@@ -58,7 +56,7 @@ internal class Program
         PyTuple p = PyTuple.Create(
             pipeline,
             prompt,
-            -1,
+            1850901881,
             816,           // width
             1152,           // height
             40,

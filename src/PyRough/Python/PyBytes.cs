@@ -1,35 +1,34 @@
 ﻿using PyRough.Python.Interop;
-using System;
 
 namespace PyRough.Python;
 
 public unsafe class PyBytes : PyObject
 {
-    internal PyBytes(PythonApi314._PyObject* handler) : base(handler)
+    internal PyBytes(PyObjectHandle handle) : base(handle)
     {
     }
 
-    public static PyByteArray FromObject(PyObject obj)
+    public static PyBytes FromObject(PyObject obj)
     {
-        return new PyByteArray(PyEngine.Api.PyBytes_FromObject(obj.ToPyObject()));
+        return new PyBytes(Runtime.Api.PyBytes_FromObject(obj.Handle));
     }
 
-    public static PyByteArray FromStringAndSize(ReadOnlySpan<byte> bytes)
+    internal static PyObjectHandle FromStringAndSize(ReadOnlySpan<byte> bytes)
     {
         fixed (byte* ptr = bytes)
         {
-            return new PyByteArray(PyEngine.Api.PyBytes_FromStringAndSize(ptr, bytes.Length));
+            return Runtime.Api.PyBytes_FromStringAndSize(ptr, bytes.Length);
         }
     }
 
     public int GetLength()
     {
-        return PyEngine.Api.PyBytes_Size(ToPyObject()).ToInt32();
+        return Runtime.Api.PyBytes_Size(Handle).ToInt32();
     }
 
-    public unsafe int Read(Span<byte> bytes, int offset)
+    public int Read(Span<byte> bytes, int offset)
     {
-        ReadOnlySpan<byte> result = PyBytes_AsStringAndSize(ToPyObject());
+        ReadOnlySpan<byte> result = Runtime.PyBytes_AsStringAndSize(Handle);
         if (offset >= result.Length)
         {
             throw new ArgumentOutOfRangeException(nameof(offset));
@@ -45,41 +44,9 @@ public unsafe class PyBytes : PyObject
 
     public byte[] ToArray()
     {
-        byte* ptr;
-        nint size;
-        int result = PyEngine.Api.PyBytes_AsStringAndSize(ToPyObject(), &ptr, &size);
-
-        int length = size.ToInt32();
-        byte[] array = new byte[length];
-        fixed (byte* dest = array)
-        {
-            Buffer.MemoryCopy(ptr, dest, length, length);
-        }
+        var result = Runtime.PyBytes_AsStringAndSize(Handle);
+        byte[] array = new byte[result.Length];
+        result.CopyTo(array);
         return array;
     }
-
-    public static PyBytes Cast(PyObject o)
-    {
-        if (o.GetPyType().Handler == (nint)PyEngine.Api.PyBytes_Type)
-        {
-            PythonApi314._PyObject* pyObj = o.ToPyObject();
-            PyEngine.Api.Py_IncRef(pyObj);
-            return new PyBytes(pyObj);
-        }
-        throw new InvalidCastException();
-    }
-
-    public override PyTypeObject GetPyType()
-    {
-        return new PyTypeObject(PyEngine.Api.PyBytes_Type);
-    }
-
-    private unsafe static ReadOnlySpan<byte> PyBytes_AsStringAndSize(PythonApi314._PyObject* ob)
-    {
-        byte* bytes;
-        nint size;
-        int result = PyEngine.Api.PyBytes_AsStringAndSize(ob, &bytes, &size);
-        return new ReadOnlySpan<byte>(bytes, size.ToInt32());
-    }
-
 }

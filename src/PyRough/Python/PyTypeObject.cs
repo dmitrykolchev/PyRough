@@ -8,8 +8,8 @@ public unsafe class PyTypeObject : PyObject
 {
     private static readonly ConcurrentDictionary<nint, WeakReference<PyTypeObject>> _resolvedTypes = new();
 
-    internal PyTypeObject(PythonApi314._PyTypeObject* handler)
-        : base((PythonApi314._PyObject*)handler)
+    internal PyTypeObject(nint handle)
+        : base(new PyObjectHandle((Python314._PyObject*)handle.ToPointer()))
     {
     }
 
@@ -19,32 +19,10 @@ public unsafe class PyTypeObject : PyObject
 
     public string Name => GetName();
 
-    public static PyTypeObject GetPyType(PyObject obj)
-    {
-        ArgumentNullException.ThrowIfNull(obj);
-
-        PythonApi314._PyObject* pyObj = obj.ToPyObject();
-        nint obType = (nint)(*pyObj).ob_type;
-        if (!_resolvedTypes.TryGetValue(obType, out WeakReference<PyTypeObject>? value))
-        {
-            PyTypeObject result = new((*pyObj).ob_type);
-            _resolvedTypes.TryAdd(obType, new WeakReference<PyTypeObject>(result));
-            return result;
-        }
-        else 
-        {
-            if (!value.TryGetTarget(out PyTypeObject? reference))
-            {
-                reference = new((*pyObj).ob_type);
-                value.SetTarget(reference);
-            }
-            return reference!;
-        }
-    }
 
     public string GetName()
     {
-        byte* ptr = PyEngine.Api._PyType_Name(ToPyObject());
+        byte* ptr = Runtime.Api._PyType_Name(Handle);
         return Marshal.PtrToStringUTF8((nint)ptr)!;
     }
 }

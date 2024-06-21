@@ -1,121 +1,100 @@
 ﻿using PyRough.Python.Interop;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
 
 namespace PyRough.Python;
 
 public unsafe class PyObject : IDisposable
 {
     private static long CurrentObjectId = 0;
-    private long _objectId;
-    private bool _disposed;
-    private PythonApi314._PyObject* _pyobj;
+    private readonly long _objectId;
 
-    internal PyObject(PythonApi314._PyObject* pyobj)
+    private bool _disposed;
+    private PyObjectHandle _handle;
+
+    internal PyObject(PyObjectHandle handle)
     {
-        if (pyobj == null)
+        if (handle.IsNull)
         {
-            throw new InvalidOperationException();
+            throw new ArgumentNullException(nameof(handle));
         }
         _objectId = Interlocked.Increment(ref CurrentObjectId);
-        _pyobj = pyobj;
-        Console.WriteLine($"PyObject created [{_objectId}], RefCount: {GetRefCount()}");
+        _handle = handle;
+        Console.WriteLine($"PyObject created [{_objectId}], RefCount: {_handle.GetRefCount()}");
     }
 
     public long ObjectId => _objectId;
 
-    internal nint Handler => (nint)_pyobj;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal PythonApi314._PyObject* ToPyObject() => _pyobj;
-
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal nint GetRefCount()
-    {
-        return (*ToPyObject()).ob_refcnt;
-    }
+    internal PyObjectHandle Handle => _handle;
 
     public bool IsDisposed => _disposed;
 
-    public PyObject GetAttribute(string name)
+    public PyObject? GetAttr(string name)
     {
-        VerifyDisposed();
-        using Utf8NativeString s = new (name);
-        PythonApi314._PyObject* result = PyEngine.Api.PyObject_GetAttrString(ToPyObject(), s);
-        return Create(result);
+        using Utf8String s = new(name);
+        PyObjectHandle result = Runtime.Api.PyObject_GetAttrString(Handle, s);
+        if(result.IsNull)
+        {
+            return null;
+        }
+        return PyObjectFactory.Wrap(result, true);
     }
 
-    public void SetAttribute(string name, PyObject value)
+    public void SetAttr(string name, PyObject value)
     {
         throw new NotImplementedException();
     }
 
-    public PyObject? Call(params object[] args)
+    public PyObject? Invoke(params object[] args)
     {
-        using var tuple = PyTuple.FromList(args);
-        return Call(tuple);
+        using var tuple = new PyTuple(args);
+        return Invoke(tuple);
     }
 
-    public PyObject? Call(PyTuple args)
+    public PyObject? Invoke(PyTuple args)
     {
-        PythonApi314._PyObject* result = PyEngine.Api.PyObject_CallObject(ToPyObject(), args.ToPyObject());
-        if (PyEngine.Api.PyErr_Occurred() != null)
+        PyObjectHandle result = Runtime.Api.PyObject_CallObject(Handle, args.Handle);
+        if (!Runtime.Api.PyErr_Occurred().IsNull)
         {
-            PyEngine.Api.PyErr_Print();
+            Runtime.Api.PyErr_Print();
             throw new InvalidOperationException();
         }
-        if (result is null)
+        if (result.IsNull)
         {
             return default;
         }
-        return Create(result);
+        return PyObjectFactory.Wrap(result, true);
     }
 
-    public PyObject? Call()
+    public PyObject? Invoke()
     {
-        PythonApi314._PyObject* result = PyEngine.Api.PyObject_CallNoArgs(ToPyObject());
-        if (PyEngine.Api.PyErr_Occurred() != null)
+        PyObjectHandle result = Runtime.Api.PyObject_CallNoArgs(Handle);
+        if (!Runtime.Api.PyErr_Occurred().IsNull)
         {
-            PyEngine.Api.PyErr_Print();
+            Runtime.Api.PyErr_Print();
             throw new InvalidOperationException();
         }
-        if (result is null)
+        if (result.IsNull)
         {
             return default;
         }
-        return Create(result);
-    }
-
-    public virtual PyTypeObject GetPyType()
-    {
-        return PyTypeObject.GetPyType(this);
+        return PyObjectFactory.Wrap(result, true);
     }
 
     public void Dump()
     {
-        PyEngine.Api._PyObject_Dump(ToPyObject());
+        Runtime.Api._PyObject_Dump(Handle);
     }
 
     protected virtual void Dispose(bool disposing)
     {
         if (!_disposed)
         {
-            if (disposing)
+            if (Handle.GetRefCount() == 1)
             {
-                // TODO: dispose managed state (managed objects)
+                string s = ToString() ?? string.Empty;
+                Console.WriteLine($"{GetType()} will be deallocated [{ObjectId}]\n\t{s.Substring(0, Math.Min(s.Length, 128))}");
             }
-            if(GetRefCount() == 1)
-            {
-                Console.WriteLine($"PyObject will be deallocated [{ObjectId}]");
-                if(ObjectId == 20)
-                {
-                    Debugger.Break();
-                }
-            }
-            PyEngine.Api.Py_DecRef(_pyobj);
-            _pyobj = null;
+            Handle.Release();
+            _handle = PyObjectHandle.Null;
             _disposed = true;
         }
     }
@@ -132,47 +111,23 @@ public unsafe class PyObject : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    protected void VerifyDisposed()
+    public PyTypeObject GetPyType()
     {
-        if(IsDisposed)
-        {
-            throw new ObjectDisposedException(ObjectId.ToString());
-        }
+        ;
+        return new PyTypeObject(Handle.GetPyType().Handle);
     }
 
-    internal static PyObject Create(PythonApi314._PyObject* pyobj)
+    public override bool Equals(object? obj)
     {
-        PythonApi314._PyTypeObject* pyType = (*pyobj).ob_type;
-        if (pyType == PyEngine.Api.PyUnicode_Type)
+        if(obj is PyObject pyo)
         {
-            return new PyUnicode(pyobj);
+            return Handle.Handle == pyo.Handle.Handle;
         }
+        return false;
+    }
 
-        if (pyType == PyEngine.Api.PyLong_Type)
-        {
-            return new PyLong(pyobj);
-        }
-
-        if (pyType == PyEngine.Api.PyFloat_Type)
-        {
-            return new PyFloat(pyobj);
-        }
-
-        if (pyType == PyEngine.Api.PyTuple_Type)
-        {
-            return new PyTuple(pyobj);
-        }
-
-        if (pyType == PyEngine.Api.PyBytes_Type)
-        {
-            return new PyBytes(pyobj);
-        }
-
-        if (pyType == PyEngine.Api.PyByteArray_Type)
-        {
-            return new PyByteArray(pyobj);
-        }
-
-        return new PyObject(pyobj);
+    public override int GetHashCode()
+    {
+        return Handle.Handle.GetHashCode();
     }
 }

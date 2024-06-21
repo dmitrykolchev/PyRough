@@ -4,16 +4,14 @@ using System.Text;
 namespace PyRough.Python.Interop;
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct Utf8NativeString : IDisposable
+internal struct Utf8String : IDisposable
 {
-    private IntPtr _ptr;
+    private nint _ptr;
 
-    public unsafe Utf8NativeString(string value) : this(value, Encodings.UTF8) { }
-
-    private unsafe Utf8NativeString(string value, Encoding encoding)
+    public unsafe Utf8String(string value)
     {
         ArgumentNullException.ThrowIfNull(value);
-        ArgumentNullException.ThrowIfNull(encoding);
+        Encoding encoding = Encodings.UTF8;
         int byteCount = encoding.GetByteCount(value);
         _ptr = Marshal.AllocHGlobal(checked(byteCount + 1));
         try

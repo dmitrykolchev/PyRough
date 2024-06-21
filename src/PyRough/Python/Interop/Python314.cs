@@ -5,7 +5,7 @@ namespace PyRough.Python.Interop;
 
 #pragma warning disable CS0649
 
-internal unsafe class PythonApi314(nint module) : ApiTable(module)
+internal unsafe partial class Python314(nint module) : ApiTable(module)
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct _PyObject
@@ -83,7 +83,7 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
         public _PyMemberDef* tp_members;
         public _PyGetSetDef* tp_getset;
         public _PyTypeObject* tp_base;
-        public _PyObject* tp_dict;
+        public PyObjectHandle tp_dict;
         public nint /* descrgetfunc */ tp_descr_get;
         public nint /* descrsetfunc */ tp_descr_set;
         public Py_ssize_t tp_dictoffset;
@@ -92,11 +92,11 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
         public nint /* newfunc */ tp_new;
         public nint /* freefunc */ tp_free;
         public nint /* inquiry */ tp_is_gc;
-        public _PyObject* tp_bases;
-        public _PyObject* tp_mro;
-        public _PyObject* tp_cache;
+        public PyObjectHandle tp_bases;
+        public PyObjectHandle tp_mro;
+        public PyObjectHandle tp_cache;
         public void* tp_subclasses;
-        public _PyObject* tp_weaklist;
+        public PyObjectHandle tp_weaklist;
         public nint /* destructor */ tp_del;
         public uint tp_version_tag;
         public nint /* destructor */ tp_finalize;
@@ -108,7 +108,7 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
     [StructLayout(LayoutKind.Sequential)]
     public struct _PyErr_StackItem
     {
-        public _PyObject* exc_value;
+        public PyObjectHandle exc_value;
         public _PyErr_StackItem* previous_item;
     }
 
@@ -132,33 +132,34 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
         public nint /* _PyInterpreterFrame * */ current_frame;
         public nint /* Py_tracefunc */ c_profilefunc;
         public nint /* Py_tracefunc */ c_tracefunc;
-        public _PyObject* c_profileobj;
-        public _PyObject* c_traceobj;
-        public _PyObject* current_exception;
+        public PyObjectHandle c_profileobj;
+        public PyObjectHandle c_traceobj;
+        public PyObjectHandle current_exception;
         public nint /* _PyErr_StackItem* */ exc_info;
-        public _PyObject* dict;
+        public PyObjectHandle dict;
         public int gilstate_counter;
-        public _PyObject* async_exc;
+        public PyObjectHandle async_exc;
         public uint thread_id;
         public uint native_thread_id;
-        public _PyObject* delete_later;
+        public PyObjectHandle delete_later;
         public nint /* uintptr_t */ critical_section;
         public int coroutine_origin_tracking_depth;
-        public _PyObject* async_gen_firstiter;
-        public _PyObject* async_gen_finalizer;
-        public _PyObject* context;
+        public PyObjectHandle async_gen_firstiter;
+        public PyObjectHandle async_gen_finalizer;
+        public PyObjectHandle context;
         public ulong /* uint64_t */ context_ver;
         public ulong /* uint64_t */ id;
         public nint /* _PyStackChunk* */ datastack_chunk;
-        public _PyObject** datastack_top;
-        public _PyObject** datastack_limit;
+        public PyObjectHandle* datastack_top;
+        public PyObjectHandle* datastack_limit;
         public _PyErr_StackItem exc_state;
-        public _PyObject* previous_executor;
+        public PyObjectHandle previous_executor;
         public ulong /* uint64_t */ dict_global_version;
     };
 
     [Import] public delegate* unmanaged[Cdecl]<void> Py_Initialize;
     [Import] public delegate* unmanaged[Cdecl]<int, void> Py_InitializeEx;
+
     [Import] public delegate* unmanaged[Cdecl]<void> Py_Finalize;
     [Import] public delegate* unmanaged[Cdecl]<int> Py_FinalizeEx;
     [Import] public delegate* unmanaged[Cdecl]<int> Py_IsInitialized;
@@ -167,42 +168,41 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<nint, int> Py_AtExit;
     [Import] public delegate* unmanaged[Cdecl]<int, void> Py_Exit;
 
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> Py_IncRef;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> Py_DecRef;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> _Py_Dealloc;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> Py_IncRef;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> Py_DecRef;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> _Py_Dealloc;
 
     [Import] public delegate* unmanaged[Cdecl]<UcsNativeString, void> Py_SetProgramName;
     [Import] public delegate* unmanaged[Cdecl]<UcsNativeString, void> Py_SetPythonHome;
     [Import] public delegate* unmanaged[Cdecl]<UcsNativeString, void> Py_SetPath;
 
 
-    [Import] public _PyTypeObject* PyByteArray_Type;
-    [Import] public _PyTypeObject* PyByteArrayIter_Type;
+    [Import] public nint PyByteArray_Type;
+    [Import] public nint PyByteArrayIter_Type;
 
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyByteArray_FromObject;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*, _PyObject*> PyByteArray_Concat;
-    [Import] public delegate* unmanaged[Cdecl]<byte*, Py_ssize_t, _PyObject*> PyByteArray_FromStringAndSize;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t> PyByteArray_Size;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, byte*> PyByteArray_AsString;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t, int> PyByteArray_Resize;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyByteArray_FromObject;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle> PyByteArray_Concat;
+    [Import] public delegate* unmanaged[Cdecl]<byte*, Py_ssize_t, PyObjectHandle> PyByteArray_FromStringAndSize;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t> PyByteArray_Size;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, byte*> PyByteArray_AsString;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, int> PyByteArray_Resize;
 
+    [Import] public nint PyBytes_Type;
+    [Import] public nint PyBytesIter_Type;
 
-    [Import] public _PyTypeObject* PyBytes_Type;
-    [Import] public _PyTypeObject* PyBytesIter_Type;
-
-    [Import] public delegate* unmanaged[Cdecl]<byte*, Py_ssize_t, _PyObject*> PyBytes_FromStringAndSize;
-    [Import] public delegate* unmanaged[Cdecl]<byte*, _PyObject*> PyBytes_FromString;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyBytes_FromObject;
+    [Import] public delegate* unmanaged[Cdecl]<byte*, Py_ssize_t, PyObjectHandle> PyBytes_FromStringAndSize;
+    [Import] public delegate* unmanaged[Cdecl]<byte*, PyObjectHandle> PyBytes_FromString;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyBytes_FromObject;
     //[Import] public delegate* unmanaged[Cdecl]< PyObject* PyBytes_FromFormatV(const char*, va_list);
     //[Import] public delegate* unmanaged[Cdecl]< PyObject* PyBytes_FromFormat(const char*, ...);
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t> PyBytes_Size;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, byte*> PyBytes_AsString;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, int, _PyObject*> PyBytes_Repr;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject**, _PyObject*, void> PyBytes_Concat;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject**, _PyObject*, void> PyBytes_ConcatAndDel;
-    [Import] public delegate* unmanaged[Cdecl]<byte*, Py_ssize_t, byte*, Py_ssize_t, byte*, _PyObject*> PyBytes_DecodeEscape;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, byte**, Py_ssize_t*, int> PyBytes_AsStringAndSize;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject**, Py_ssize_t, int> _PyBytes_Resize;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t> PyBytes_Size;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, byte*> PyBytes_AsString;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, int, PyObjectHandle> PyBytes_Repr;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle*, PyObjectHandle, void> PyBytes_Concat;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle*, PyObjectHandle, void> PyBytes_ConcatAndDel;
+    [Import] public delegate* unmanaged[Cdecl]<byte*, Py_ssize_t, byte*, Py_ssize_t, byte*, PyObjectHandle> PyBytes_DecodeEscape;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, byte**, Py_ssize_t*, int> PyBytes_AsStringAndSize;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle*, Py_ssize_t, int> _PyBytes_Resize;
 
     [StructLayout(LayoutKind.Sequential)]
     public struct _PyBytesObject
@@ -215,52 +215,116 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<void> PyErr_Print;
     [Import] public delegate* unmanaged[Cdecl]<int, void> PyErr_PrintEx;
     [Import] public delegate* unmanaged[Cdecl]<void> PyErr_Clear;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*> PyErr_Occurred;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle> PyErr_Occurred;
 
-    [Import] public _PyTypeObject* PyFloat_Type;
+    [Import] public delegate* unmanaged[Cdecl]<int> PyEval_ThreadsInitialized;
+    [Import] public delegate* unmanaged[Cdecl]<void> PyEval_InitThreads;
+
+    [Import] public nint PyFloat_Type;
     [Import] public delegate* unmanaged[Cdecl]<double> PyFloat_GetMax;
     [Import] public delegate* unmanaged[Cdecl]<double> PyFloat_GetMin;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*> PyFloat_GetInfo;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyFloat_FromString;
-    [Import] public delegate* unmanaged[Cdecl]<double, _PyObject*> PyFloat_FromDouble;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, double>  PyFloat_AsDouble;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle> PyFloat_GetInfo;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyFloat_FromString;
+    [Import] public delegate* unmanaged[Cdecl]<double, PyObjectHandle> PyFloat_FromDouble;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, double>  PyFloat_AsDouble;
 
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*> PyImport_GetModuleDict;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_GetModule;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_AddModuleObject;
-    [Import] public delegate* unmanaged[Cdecl]<byte*, _PyObject*> PyImport_AddModule;
-    [Import] public delegate* unmanaged[Cdecl]<Utf8NativeString, _PyObject*> PyImport_ImportModule;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_Import;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyImport_ReloadModule;
+    public enum PyGILState_STATE : int
+    {
+        PyGILState_LOCKED,
+        PyGILState_UNLOCKED
+    }
 
-    [Import] public _PyTypeObject* PyLong_Type;
-    [Import] public _PyTypeObject* PyBool_Type;
+    [Import] public delegate* unmanaged[Cdecl]<int> PyGILState_Check;
+    [Import] public delegate* unmanaged[Cdecl]<PyGILState_STATE> PyGILState_Ensure;
+    [Import] public delegate* unmanaged[Cdecl]<PyGILState_STATE, void> PyGILState_Release;
 
-    [Import] public delegate* unmanaged[Cdecl]<int, _PyObject*> PyLong_FromLong;
-    [Import] public delegate* unmanaged[Cdecl]<uint, _PyObject*> PyLong_FromUnsignedLong;
-    [Import] public delegate* unmanaged[Cdecl]<nint, _PyObject*> PyLong_FromSize_t;
-    [Import] public delegate* unmanaged[Cdecl]<Py_ssize_t, _PyObject*> PyLong_FromSsize_t;
-    [Import] public delegate* unmanaged[Cdecl]<double, _PyObject*> PyLong_FromDouble;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, int> PyLong_AsLong;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, uint>PyLong_AsUnsignedLong;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*> PyLong_GetInfo;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, double> PyLong_AsDouble;
-    [Import] public delegate* unmanaged[Cdecl]<void*, _PyObject*> PyLong_FromVoidPtr;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void*> PyLong_AsVoidPtr;
-    [Import] public delegate* unmanaged[Cdecl]<long, _PyObject*> PyLong_FromLongLong;
-    [Import] public delegate* unmanaged[Cdecl]<ulong, _PyObject*> PyLong_FromUnsignedLongLong;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, long> PyLong_AsLongLong;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, ulong> PyLong_AsUnsignedLongLong;
+    internal PyGILState AcquireLock()
+    {
+        return PyGILState_Ensure() == PyGILState_STATE.PyGILState_LOCKED 
+            ? PyGILState.Locked
+            : PyGILState.Unlocked;
+    }
+    internal void ReleaseLock(PyGILState state)
+    {
+        PyGILState_Release(state == PyGILState.Locked 
+            ? PyGILState_STATE.PyGILState_LOCKED
+            : PyGILState_STATE.PyGILState_UNLOCKED);
+    }
 
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*, _PyObject*> PyObject_CallObject;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyObject_CallNoArgs;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyObject_Type;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t> PyObject_Size;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t> PyObject_Length;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*, _PyObject*> PyObject_GetItem;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*, _PyObject*, int> PyObject_SetItem;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Utf8NativeString, _PyObject*> PyObject_GetAttrString;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Utf8NativeString, _PyObject*, int> PyObject_SetAttrString;
+    [Import] public nint PyModule_Type;
+
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle> PyImport_GetModuleDict;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyImport_GetModule;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyImport_AddModuleObject;
+    [Import] public delegate* unmanaged[Cdecl]<Utf8String, PyObjectHandle> PyImport_AddModule;
+    [Import] public delegate* unmanaged[Cdecl]<Utf8String, PyObjectHandle> PyImport_ImportModule;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyImport_Import;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyImport_ReloadModule;
+
+    [Import] public nint PyLong_Type;
+    [Import] public nint PyBool_Type;
+
+    [Import] public nint PyList_Type;
+    [Import] public nint PyListIter_Type;
+    [Import] public nint PyListRevIter_Type;
+
+    [Import] public delegate* unmanaged[Cdecl]<Py_ssize_t, PyObjectHandle> PyList_New;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t> PyList_Size;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, PyObjectHandle> PyList_GetItem;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, PyObjectHandle, int> PyList_SetItem;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, PyObjectHandle, int> PyList_Insert;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, int> PyList_Append;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, Py_ssize_t, PyObjectHandle> PyList_GetSlice;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, Py_ssize_t, PyObjectHandle, int> PyList_SetSlice;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, int> PyList_Sort;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, int> PyList_Reverse;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyList_AsTuple;
+
+    [Import] public nint PyDict_Type;
+
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle> PyDict_New;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle> PyDict_GetItem;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle> PyDict_GetItemWithError;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle, int> PyDict_SetItem;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, int> PyDict_DelItem;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> PyDict_Clear;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyDict_Keys;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyDict_Values;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyDict_Items;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t> PyDict_Size;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyDict_Copy;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, int> PyDict_Contains;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, int> PyDict_Update;
+
+
+    [Import] public delegate* unmanaged[Cdecl]<int, PyObjectHandle> PyLong_FromLong;
+    [Import] public delegate* unmanaged[Cdecl]<uint, PyObjectHandle> PyLong_FromUnsignedLong;
+    [Import] public delegate* unmanaged[Cdecl]<nint, PyObjectHandle> PyLong_FromSize_t;
+    [Import] public delegate* unmanaged[Cdecl]<Py_ssize_t, PyObjectHandle> PyLong_FromSsize_t;
+    [Import] public delegate* unmanaged[Cdecl]<double, PyObjectHandle> PyLong_FromDouble;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, int> PyLong_AsLong;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, uint>PyLong_AsUnsignedLong;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle> PyLong_GetInfo;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, double> PyLong_AsDouble;
+    [Import] public delegate* unmanaged[Cdecl]<void*, PyObjectHandle> PyLong_FromVoidPtr;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void*> PyLong_AsVoidPtr;
+    [Import] public delegate* unmanaged[Cdecl]<long, PyObjectHandle> PyLong_FromLongLong;
+    [Import] public delegate* unmanaged[Cdecl]<ulong, PyObjectHandle> PyLong_FromUnsignedLongLong;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, long> PyLong_AsLongLong;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, ulong> PyLong_AsUnsignedLongLong;
+
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle> PyObject_CallObject;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyObject_CallNoArgs;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyObject_Type;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t> PyObject_Size;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t> PyObject_Length;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle> PyObject_GetItem;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle, int> PyObject_SetItem;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Utf8String, PyObjectHandle> PyObject_GetAttrString;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Utf8String, PyObjectHandle, int> PyObject_SetAttrString;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> _PyObject_Dump;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> PyObject_CallFinalizer;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyObject_Str;
 
     [StructLayout(LayoutKind.Sequential)]
     public struct _PyCompilerFlags
@@ -268,41 +332,40 @@ internal unsafe class PythonApi314(nint module) : ApiTable(module)
         public int cf_flags;
         public int cf_feature_version;
     }
-    [Import] public delegate* unmanaged[Cdecl]<Utf8NativeString, _PyCompilerFlags*, int> PyRun_SimpleStringFlags;
-    [Import] public delegate* unmanaged[Cdecl]<byte*, int, _PyObject*, _PyObject*, _PyCompilerFlags*, _PyObject*> PyRun_StringFlags;
 
-    [Import] public _PyTypeObject* PyTuple_Type;
-    [Import] public _PyTypeObject* PyTupleIter_Type;
+    [Import] public delegate* unmanaged[Cdecl]<Utf8String, _PyCompilerFlags*, int> PyRun_SimpleStringFlags;
+    [Import] public delegate* unmanaged[Cdecl]<byte*, int, PyObjectHandle, PyObjectHandle, _PyCompilerFlags*, PyObjectHandle> PyRun_StringFlags;
 
-    [Import] public delegate* unmanaged[Cdecl]<Py_ssize_t, _PyObject*> PyTuple_New;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t> PyTuple_Size;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t, _PyObject*> PyTuple_GetItem;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t, _PyObject*, int> PyTuple_SetItem;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, Py_ssize_t, Py_ssize_t, _PyObject*> PyTuple_GetSlice;
+    [Import] public nint PyTuple_Type;
+    [Import] public nint PyTupleIter_Type;
+
+    [Import] public delegate* unmanaged[Cdecl]<Py_ssize_t, PyObjectHandle> PyTuple_New;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t> PyTuple_Size;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, PyObjectHandle> PyTuple_GetItem;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, PyObjectHandle, int> PyTuple_SetItem;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, Py_ssize_t, PyObjectHandle> PyTuple_GetSlice;
 
     [StructLayout(LayoutKind.Sequential)]
     public struct _PyTupleObject
     {
         public _PyVarObject ob_base;
-        public _PyObject* ob_item;
+        public PyObjectHandle ob_item;
     }
 
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject**, Py_ssize_t, int> _PyTuple_Resize;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle*, Py_ssize_t, int> _PyTuple_Resize;
 
-    [Import] public delegate* unmanaged[Cdecl]<void*, byte*> _PyType_Name;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> _PyObject_Dump;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, void> PyObject_CallFinalizer;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, byte*> _PyType_Name;
 
-    [Import] public _PyTypeObject* PyUnicode_Type;
-    [Import] public _PyTypeObject* PyUnicodeIter_Type;
+    [Import] public nint PyUnicode_Type;
+    [Import] public nint PyUnicodeIter_Type;
 
-    [Import] public delegate* unmanaged[Cdecl]<byte*, _PyObject*> PyUnicode_DecodeFSDefault;
-    [Import] public delegate* unmanaged[Cdecl]<byte*, nint, _PyObject*> PyUnicode_DecodeFSDefaultAndSize;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, nint> PyUnicode_GetLength;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, char*, nint, nint> PyUnicode_AsWideChar;
-    [Import] public delegate* unmanaged[Cdecl]<char*, nint, _PyObject*> PyUnicode_FromWideChar;
-    [Import] public delegate* unmanaged[Cdecl]<byte*, nint, _PyObject*> PyUnicode_FromStringAndSize;
-    [Import] public delegate* unmanaged[Cdecl]<_PyObject*, _PyObject*> PyUnicode_FromObject;
+    [Import] public delegate* unmanaged[Cdecl]<byte*, PyObjectHandle> PyUnicode_DecodeFSDefault;
+    [Import] public delegate* unmanaged[Cdecl]<byte*, nint, PyObjectHandle> PyUnicode_DecodeFSDefaultAndSize;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, nint> PyUnicode_GetLength;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, char*, nint, nint> PyUnicode_AsWideChar;
+    [Import] public delegate* unmanaged[Cdecl]<char*, nint, PyObjectHandle> PyUnicode_FromWideChar;
+    [Import] public delegate* unmanaged[Cdecl]<byte*, nint, PyObjectHandle> PyUnicode_FromStringAndSize;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyUnicode_FromObject;
 }
 
 #pragma warning restore CS0649

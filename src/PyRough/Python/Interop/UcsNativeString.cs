@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace PyRough.Python.Interop;
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct UcsNativeString: IDisposable
+internal struct UcsNativeString : IDisposable
 {
     internal static readonly int _UCS = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 2 : 4;
     internal static readonly Encoding PyEncoding = _UCS == 2 ? Encodings.UTF16 : Encodings.UTF32;
@@ -21,13 +21,16 @@ internal struct UcsNativeString: IDisposable
     {
         ArgumentNullException.ThrowIfNull(value);
         ArgumentNullException.ThrowIfNull(encoding);
-        value = value + "\0";
+
         int byteCount = encoding.GetByteCount(value);
-        _ptr = Marshal.AllocHGlobal(checked(byteCount));
+        _ptr = Marshal.AllocHGlobal(checked(byteCount + _UCS));
         try
         {
             encoding.GetBytes(value, new Span<byte>(Bytes, byteCount));
-            Bytes[byteCount] = 0;
+            for (int i = 0; i < _UCS; ++i)
+            {
+                Bytes[byteCount + i] = 0;
+            }
         }
         catch
         {

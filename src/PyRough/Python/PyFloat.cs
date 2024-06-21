@@ -4,24 +4,32 @@ namespace PyRough.Python;
 
 public unsafe class PyFloat : PyObject
 {
-    internal PyFloat(PythonApi314._PyObject* pyobj) : base(pyobj)
+    internal PyFloat(PyObjectHandle handle) : base(handle)
     {
-        if ((*pyobj).ob_type != PyEngine.Api.PyFloat_Type)
+        if (handle.GetPyType().Handle != Runtime.Api.PyFloat_Type)
         {
             throw new InvalidCastException();
         }
+    }
+
+    public PyFloat(double value) : this(FromDouble(value))
+    {
+    }
+
+    public PyFloat(float value) : this(FromDouble(value))
+    {
+    }
+
+    internal static PyObjectHandle FromDouble(double value)
+    {
+        return Runtime.Api.PyFloat_FromDouble(value);
     }
 
     public double Value => ToDouble();
 
     public double ToDouble()
     {
-        return PyEngine.Api.PyFloat_AsDouble(ToPyObject());
-    }
-
-    public static PyFloat FromDouble(double value)
-    {
-        return new PyFloat(PyEngine.Api.PyFloat_FromDouble(value));
+        return Runtime.Api.PyFloat_AsDouble(Handle);
     }
 
     public static explicit operator double(PyFloat value)

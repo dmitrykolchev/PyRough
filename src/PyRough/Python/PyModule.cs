@@ -1,25 +1,27 @@
 ﻿using PyRough.Python.Interop;
-using static PyRough.Python.PyEngine;
 
 namespace PyRough.Python;
 
-public unsafe class PyModule : PyObject
+public class PyModule : PyObject
 {
-    internal PyModule(PythonApi314._PyObject* pyobj)
-        : base(pyobj)
+    internal PyModule(PyObjectHandle handle)
+        : base(handle)
     {
+        if (handle.GetPyType().Handle != Runtime.Api.PyModule_Type)
+        {
+            throw new InvalidCastException();
+        }
     }
 
-    public static PyModule Import(string name)
+    public static unsafe PyModule Import(string name)
     {
-        using Utf8NativeString str = new (name);
-        PythonApi314._PyObject* module;
-        module = Api.PyImport_ImportModule(str);
-        if (module == null)
+        using Utf8String str = new(name);
+        PyObjectHandle module = Runtime.Api.PyImport_ImportModule(str);
+        if (module.IsNull)
         {
-            if (Api.PyErr_Occurred() != null)
+            if (!Runtime.Api.PyErr_Occurred().IsNull)
             {
-                Api.PyErr_Print();
+                Runtime.Api.PyErr_Print();
             }
             throw new InvalidOperationException();
         }

@@ -1,65 +1,44 @@
 ﻿using PyRough.Python.Interop;
+using System;
+using System.Drawing;
+using System.Runtime.CompilerServices;
 
 namespace PyRough.Python;
 
 public unsafe class PyTuple : PyObject
 {
-    internal PyTuple(PythonApi314._PyObject* handler) : base(handler)
+    internal PyTuple(PyObjectHandle handle) : base(handle)
     {
-    }
-
-    public static PyTuple Create(int size)
-    {
-        PythonApi314._PyObject* tuple = PyEngine.Api.PyTuple_New(size);
-        return new PyTuple(tuple);
-    }
-
-    public static PyTuple FromList(params object?[] values)
-    {
-        var result = Create(values.Length);
-        int index = 0;
-        foreach (object? value in values)
+        if (handle.GetPyType().Handle != Runtime.Api.PyTuple_Type)
         {
-            var typeCode = Type.GetTypeCode(value.GetType());
-            switch (typeCode)
-            {
-                case TypeCode.Boolean:
-                    result[index] = PyLong.FromInt32((bool)value ? 1 : 0);
-                    break;
-                case TypeCode.Byte:
-                    result[index] = PyLong.FromInt32((byte)value)!;
-                    break;
-                case TypeCode.Int32:
-                    result[index] = PyLong.FromInt32((int)value);
-                    break;
-                case TypeCode.Int64:
-                    result[index] = PyLong.FromInt64((long)value);
-                    break;
-                case TypeCode.Double:
-                    result[index] = PyFloat.FromDouble((double)value);
-                    break;
-                case TypeCode.Single:
-                    result[index] = PyFloat.FromDouble((double)(float)value);
-                    break;
-                case TypeCode.String:
-                    result[index] = PyUnicode.FromString((string)value)!;
-                    break;
-                default:
-                    if (value is byte[] array)
-                    {
-                        result[index] = PyBytes.FromStringAndSize(array);
-                    }
-                    else if(value is PyObject pyobj)
-                    {
-                        result[index] = pyobj;
-                    }
-                    else
-                    {
-                        throw new InvalidCastException();
-                    }
-                    break;
-            }
-            index++;
+            throw new InvalidCastException();
+        }
+    }
+
+    public PyTuple(int size) : base(Runtime.Api.PyTuple_New(size))
+    {
+    }
+
+    public PyTuple(params object?[] values) : base(FromList(values))
+    {
+    }
+
+    internal static PyObjectHandle FromTuple(ITuple tuple)
+    {
+        PyObjectHandle result = Runtime.Api.PyTuple_New(tuple.Length);
+        for(int i = 0; i < tuple.Length; ++i)
+        {
+            SetItemInternal(result, i, PyObjectFactory.FromClrObject(tuple[i]));
+        }
+        return result;
+    }
+
+    internal static PyObjectHandle FromList(params object?[] values)
+    {
+        PyObjectHandle result = Runtime.Api.PyTuple_New(values.Length);
+        for (int i = 0; i < values.Length; ++i)
+        {
+            SetItemInternal(result, i, PyObjectFactory.FromClrObject(values[i]));
         }
         return result;
     }
@@ -67,29 +46,32 @@ public unsafe class PyTuple : PyObject
     public PyObject this[int index]
     {
         get => GetItem(index);
-        set => SetItem(index, value);
     }
 
     public int Length => GetSize();
 
     public int GetSize()
     {
-        return PyEngine.Api.PyTuple_Size(ToPyObject()).ToInt32();
+        return Runtime.Api.PyTuple_Size(Handle).ToInt32();
     }
 
-    public void SetItem(int index, PyObject value)
+    public PyObject GetItem(int index)
     {
-        PythonApi314._PyObject* v = value == null ? null : value.ToPyObject();
-        int result = PyEngine.Api.PyTuple_SetItem(ToPyObject(), index, v);
-        if (result == -1)
+        PyObjectHandle result = GetItemInternal(index);
+        return PyObjectFactory.Wrap(result, true);
+    }
+
+    internal static void SetItemInternal(PyObjectHandle tuple, int index, PyObjectHandle handle)
+    {
+        int result = Runtime.Api.PyTuple_SetItem(tuple, index, handle);
+        if (result != 0)
         {
             throw new ArgumentOutOfRangeException(nameof(index));
         }
     }
 
-    public PyObject GetItem(int index)
+    internal PyObjectHandle GetItemInternal(int index)
     {
-        PythonApi314._PyObject* result = PyEngine.Api.PyTuple_GetItem(ToPyObject(), index);
-        return PyObject.Create(result);
+        return Runtime.Api.PyTuple_GetItem(Handle, index);
     }
 }
