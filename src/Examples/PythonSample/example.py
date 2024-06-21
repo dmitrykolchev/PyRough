@@ -66,11 +66,11 @@ def createPipeline(modelPath: str, loras: list):
     print(adapters, weights)        
     pipeline.set_adapters(adapters, weights)    
 
-    # scheduler = EulerAncestralDiscreteScheduler.from_config(pipeline.scheduler.config)
-    scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)    
-    scheduler.config.use_karras_sigmas = True
-    scheduler.config.euler_at_final = True    
-    scheduler.config.algorithm_type = "sde-dpmsolver++"
+    scheduler = EulerAncestralDiscreteScheduler.from_config(pipeline.scheduler.config)
+    # scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)    
+    # scheduler.config.use_karras_sigmas = True
+    # scheduler.config.euler_at_final = True    
+    # scheduler.config.algorithm_type = "sde-dpmsolver++"
     pipeline.scheduler = scheduler
     
     pipeline.enable_xformers_memory_efficient_attention()
