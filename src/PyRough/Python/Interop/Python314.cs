@@ -314,6 +314,7 @@ internal unsafe partial class Python314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, long> PyLong_AsLongLong;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, ulong> PyLong_AsUnsignedLongLong;
 
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle, PyObjectHandle> PyObject_Call;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle> PyObject_CallObject;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyObject_CallNoArgs;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyObject_Type;

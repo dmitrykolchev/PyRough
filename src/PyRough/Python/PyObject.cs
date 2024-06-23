@@ -67,6 +67,23 @@ public unsafe class PyObject : IDisposable
         return PyObjectFactory.Wrap(result, true);
     }
 
+    public PyObject? Invoke(PyTuple args, PyDict kwargs)
+    {
+        ArgumentNullException.ThrowIfNull(args);
+        ArgumentNullException.ThrowIfNull(kwargs);
+        PyObjectHandle result = Runtime.Api.PyObject_Call(Handle, args.Handle, kwargs.Handle);
+        if (!Runtime.Api.PyErr_Occurred().IsNull)
+        {
+            Runtime.Api.PyErr_Print();
+            throw new InvalidOperationException();
+        }
+        if (result.IsNull)
+        {
+            return default;
+        }
+        return PyObjectFactory.Wrap(result, true);
+    }
+
     public PyObject? Invoke()
     {
         PyObjectHandle result = Runtime.Api.PyObject_CallNoArgs(Handle);

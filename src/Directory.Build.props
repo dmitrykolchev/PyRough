@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageProjectUrl>http://dykbits.net</PackageProjectUrl>
+    <Copyright>2024 Dmitry Kolchev</Copyright>
+    <Company>Xobex</Company>
+    <Authors>Dmitry Kolchev</Authors>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>

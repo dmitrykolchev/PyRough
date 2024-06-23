@@ -3,6 +3,8 @@ import io
 import sys;
 import token
 from diffusers.loaders import lora
+import StableDiffusionImageGenerator
+from safetensors.torch import load_file
 
 import torch
 from diffusers import StableDiffusionXLPipeline
@@ -25,6 +27,32 @@ def sayHelloWorld():
         print(f"{i}: Hello World!")
     return "Hello World"
 
+
+def makeImage():
+    sd = StableDiffusionImageGenerator.StableDiffusionImageGenerator()
+    loras = [
+            ("Fant5yP0ny", 0.7),
+            ("Expressive_H-000001", 0.6),
+            ("add-detail-xl", 0.7),
+            # ("Photo 2 Style SDXL_LoRA_Pony Diffusion V6 XL", 0.7),
+            ("incase_style_v3-1_ponyxl_ilff", 0.5),
+            ("g0th1cPXL", 0.45),
+            # ("MJ52", 0.4)
+            ("RELSM_v1", 0.9),
+            # ("d4rk01lXLP", 0.8),
+            # ("Concept Art Twilight Style SDXL_LoRA_Pony Diffusion V6 XL", 0.8)
+        ]
+    sd.initialize("ponyDiffusionV6XL_v6StartWithThisOne.safetensors", 
+                  "realcartoonXL_v6.safetensors", 
+                  loras)   
+    prompt = "score_9, score_8_up, score_7_up, sexy girl, bright skin, topless, bow hair, pretty face, hazel eyes, blonde , bow hairstyle, large breasts,  boobs squeeze together , grab breast, cleavage , nipples,  military camouflage pants, boob focus, sexy pose , sexy , posing , wet,  halfbody portrait ,UHD, 8K, ultra detailed, a cinematic photograph of {prompt}, beautiful lighting, great composition, g0th1c, UHD, 8K, ultra detailed, a cinematic photograph of {prompt}, beautiful lighting, great composition, photo realistic, raw"
+    negative_prompt = "score_6, score_5, score_4, worst quality, low quality, child, baby, Asian, anime, manga, anorexic, anorexia, canvas frame, text, old, mature, lazy eye, crossed eyes,  gun, drawing, overexposed, high contrast, cartoon, 3d, disfigured, bad art, deformed, extra limbs, b&w, blurry, duplicate, morbid, mutilated,  out of frame, extra fingers, mutated hands, drawing, poorly drawn hands, poorly drawn face, mutation, deformed, ugly, blurry, weapon, bad anatomy,  bad proportions, painting, extra limbs, cloned face, disfigured, out of frame, ugly, extra limbs, text, bad anatomy, large breasts"
+    image = sd.run(prompt, negative_prompt, -1, 832, 1216, 30, 4, 2)
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")    
+    data = buffer.getvalue()        
+    return data
+
 def createPipeline(modelPath: str, loras: list):
     print("loading")    
     print(modelPath)    
@@ -32,25 +60,43 @@ def createPipeline(modelPath: str, loras: list):
     torch.set_grad_enabled(False)    
     pipeline = StableDiffusionXLPipeline.from_single_file(
         modelPath,
-        torch_dtype=torch.bfloat16, 
+        torch_dtype=torch.float16, 
         variant="fp16", 
         use_safetensors=True).to("cuda")
 
+
+    embedding_path = "C:\\StableDiffusion\\models\\embeddings\\negativeXL_D.safetensors"
+    # pipeline.load_textual_inversion(embedding_path)
+    
+    # load embeddings to the text encoders
+    state_dict = load_file(embedding_path)
+
+    # load embeddings of text_encoder 1 (CLIP ViT-L/14)
+    pipeline.load_textual_inversion(
+        state_dict["clip_l"],
+        token="negativeXL_D",
+        text_encoder=pipeline.text_encoder,
+        tokenizer=pipeline.tokenizer,
+    )
+    # load embeddings of text_encoder 2 (CLIP ViT-G/14)
+    pipeline.load_textual_inversion(
+        state_dict["clip_g"],
+        token="negativeXL_D",
+        text_encoder=pipeline.text_encoder_2,
+        tokenizer=pipeline.tokenizer_2,
+    )    
+    
     lora_path = "C:\\StableDiffusion\\models\\loras\\"
     adapters = [];
     weights = [];
 
-    for item in loras:
-        print(f"<{item[0]}:{item[1]}>")        
-        pipeline.load_lora_weights(f"{lora_path}{item[0]}.safetensors", adapter_name = item[0])
-        adapters.append(item[0])        
-        weights.append(item[1])        
+    if loras:
+        for item in loras:
+            print(f"<{item[0]}:{item[1]}>")        
+            pipeline.load_lora_weights(f"{lora_path}{item[0]}.safetensors", adapter_name = item[0])
+            adapters.append(item[0])        
+            weights.append(item[1])        
 
-    # pipeline.load_lora_weights(f"{lora_path}Fant5yP0ny.safetensors", adapter_name = "Fant5yP0ny")
-    # pipeline.load_lora_weights(f"{lora_path}Expressive_H-000001.safetensors", adapter_name = "Expressive_H")
-    # pipeline.load_lora_weights(f"{lora_path}RELSM_v1.safetensors", "relsm")
-    # pipeline.load_lora_weights(f"{lora_path}d4rk01lXLP.safetensors", "d4rk01l")
-    # pipeline.load_lora_weights(f"{lora_path}Concept Art Twilight Style SDXL_LoRA_Pony Diffusion V6 XL.safetensors", "twilight")
     # scales = {
     #     "text_encoder": 0.7,
     #     "text_encoder_2": 0.7,  # only usable if pipe has a 2nd text encoder
@@ -72,6 +118,12 @@ def createPipeline(modelPath: str, loras: list):
     # scheduler.config.euler_at_final = True    
     # scheduler.config.algorithm_type = "sde-dpmsolver++"
     pipeline.scheduler = scheduler
+
+    # try:
+    #     pipeline.unet = torch.compile(pipeline.unet, mode="reduce-overhead", fullgraph=True)
+    # except:
+    #     print(repr(sys.exception()))
+                
     
     pipeline.enable_xformers_memory_efficient_attention()
     pipeline.enable_model_cpu_offload()
@@ -127,4 +179,5 @@ def generateImage(pipeline: object,
             "height": height, 
             "clip_skip": clip_skip
             }
-
+        
+        
