@@ -6,6 +6,7 @@ PyRough is a package that gives .Net prorgammers to embed Python into the .NET r
 ## Python Runtime initialization
 
 ``` csharp
+string pythonDll = @"string PythonDll = @"C:\Program Files\Python310\python310.dll";
 string pythonHome = @"C:\Program Files\Python310";
 string pythonVenv = @"C:\Projects\venv";
 
