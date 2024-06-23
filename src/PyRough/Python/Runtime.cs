@@ -44,11 +44,11 @@ public partial class Runtime
     {
         if (_api.Py_IsInitialized() == 0)
         {
-            using UcsNativeString programName = new(config.ProgramName);
+            using UcsString programName = new(config.ProgramName);
             _api.Py_SetProgramName(programName);
-            using UcsNativeString pythonHome = new(config.PythonHome);
+            using UcsString pythonHome = new(config.PythonHome);
             _api.Py_SetPythonHome(pythonHome);
-            using UcsNativeString path = new(config.Path);
+            using UcsString path = new(config.Path);
             _api.Py_SetPath(path);
 
             _api.Py_InitializeEx(1);

@@ -1,5 +1,10 @@
-﻿using PyRough.Python.Interop;
+﻿// <copyright file="PyObjectFactory.cs" company="Division By Zero">
+// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
 using System.Runtime.CompilerServices;
+using PyRough.Python.Interop;
 
 namespace PyRough.Python;
 
@@ -37,7 +42,7 @@ internal class PyObjectFactory
                 {
                     return pyobj.Handle;
                 }
-                else if(value is ITuple tuple)
+                else if (value is ITuple tuple)
                 {
                     return PyTuple.FromTuple(tuple);
                 }
@@ -82,7 +87,7 @@ internal class PyObjectFactory
             return new PyBytes(handle);
         }
 
-        if(pyType == Runtime.Api.PyList_Type)
+        if (pyType == Runtime.Api.PyList_Type)
         {
             return new PyList(handle);
         }

@@ -1,4 +1,9 @@
-﻿using System.Runtime.InteropServices;
+﻿// <copyright file="Python310.cs" company="Division By Zero">
+// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
+using System.Runtime.InteropServices;
 
 namespace PyRough.Python.Interop;
 #pragma warning disable CS0649

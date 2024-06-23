@@ -1,4 +1,9 @@
-﻿using System.Runtime.InteropServices;
+﻿// <copyright file="Python314.cs" company="Division By Zero">
+// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
+using System.Runtime.InteropServices;
 using Py_ssize_t = nint;
 
 namespace PyRough.Python.Interop;
@@ -172,9 +177,9 @@ internal unsafe partial class Python314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> Py_DecRef;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> _Py_Dealloc;
 
-    [Import] public delegate* unmanaged[Cdecl]<UcsNativeString, void> Py_SetProgramName;
-    [Import] public delegate* unmanaged[Cdecl]<UcsNativeString, void> Py_SetPythonHome;
-    [Import] public delegate* unmanaged[Cdecl]<UcsNativeString, void> Py_SetPath;
+    [Import] public delegate* unmanaged[Cdecl]<UcsString, void> Py_SetProgramName;
+    [Import] public delegate* unmanaged[Cdecl]<UcsString, void> Py_SetPythonHome;
+    [Import] public delegate* unmanaged[Cdecl]<UcsString, void> Py_SetPath;
 
 
     [Import] public nint PyByteArray_Type;
@@ -226,7 +231,7 @@ internal unsafe partial class Python314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle> PyFloat_GetInfo;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyFloat_FromString;
     [Import] public delegate* unmanaged[Cdecl]<double, PyObjectHandle> PyFloat_FromDouble;
-    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, double>  PyFloat_AsDouble;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, double> PyFloat_AsDouble;
 
     public enum PyGILState_STATE : int
     {
@@ -240,13 +245,13 @@ internal unsafe partial class Python314(nint module) : ApiTable(module)
 
     internal PyGILState AcquireLock()
     {
-        return PyGILState_Ensure() == PyGILState_STATE.PyGILState_LOCKED 
+        return PyGILState_Ensure() == PyGILState_STATE.PyGILState_LOCKED
             ? PyGILState.Locked
             : PyGILState.Unlocked;
     }
     internal void ReleaseLock(PyGILState state)
     {
-        PyGILState_Release(state == PyGILState.Locked 
+        PyGILState_Release(state == PyGILState.Locked
             ? PyGILState_STATE.PyGILState_LOCKED
             : PyGILState_STATE.PyGILState_UNLOCKED);
     }
@@ -304,7 +309,7 @@ internal unsafe partial class Python314(nint module) : ApiTable(module)
     [Import] public delegate* unmanaged[Cdecl]<Py_ssize_t, PyObjectHandle> PyLong_FromSsize_t;
     [Import] public delegate* unmanaged[Cdecl]<double, PyObjectHandle> PyLong_FromDouble;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, int> PyLong_AsLong;
-    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, uint>PyLong_AsUnsignedLong;
+    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, uint> PyLong_AsUnsignedLong;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle> PyLong_GetInfo;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, double> PyLong_AsDouble;
     [Import] public delegate* unmanaged[Cdecl]<void*, PyObjectHandle> PyLong_FromVoidPtr;

@@ -1,4 +1,9 @@
-﻿using PyRough.Python.Interop;
+﻿// <copyright file="PyObject.cs" company="Division By Zero">
+// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
+using PyRough.Python.Interop;
 
 namespace PyRough.Python;
 
@@ -34,7 +39,7 @@ public unsafe class PyObject : IDisposable
     {
         using Utf8String s = new(name);
         PyObjectHandle result = Runtime.Api.PyObject_GetAttrString(Handle, s);
-        if(result.IsNull)
+        if (result.IsNull)
         {
             return Runtime.None;
         }
@@ -134,7 +139,7 @@ public unsafe class PyObject : IDisposable
 
     public override bool Equals(object? obj)
     {
-        if(obj is PyObject pyo)
+        if (obj is PyObject pyo)
         {
             return Handle.Handle == pyo.Handle.Handle;
         }

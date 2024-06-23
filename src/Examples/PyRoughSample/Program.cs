@@ -1,4 +1,9 @@
-﻿using PyRough.Python;
+﻿// <copyright file="Program.cs" company="Division By Zero">
+// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
+using PyRough.Python;
 
 namespace PyRoughSample;
 
@@ -40,7 +45,7 @@ internal class Program
             //("Concept Art Twilight Style SDXL_LoRA_Pony Diffusion V6 XL", 0.8),
             //("Pony_DetailV1_0", 0.9)
         ];
-        PyList pyLoras = new (loras);
+        PyList pyLoras = new(loras);
         var pipeline = createPipeline.Invoke(model, pyLoras)!;
         Console.WriteLine("SDXL pipeline created");
 
@@ -85,17 +90,17 @@ internal class Program
     private static void Initialize()
     {
         string pythonHome = @"C:\Program Files\Python310";
-
+        string pythonVenv = @"C:\Projects\venv";
         List<string> paths = [
             "",
             "C:\\Projects\\2024\\PythonInterop\\src\\Examples\\PythonSample",
-            "c:\\Program Files\\Python310\\python310.zip",
-            "c:\\Program Files\\Python310\\DLLs",
-            "c:\\Program Files\\Python310\\lib",
-            "c:\\Program Files\\Python310",
-            "C:\\Projects\\venv",
-            "C:\\Projects\\venv\\Library\\bin",
-            "C:\\Projects\\venv\\lib\\site-packages"
+            pythonHome,
+            Path.Combine(pythonHome, "python310.zip"),
+            Path.Combine(pythonHome, "DLLs"),
+            Path.Combine(pythonHome, "lib"),
+            pythonVenv,
+            Path.Combine(pythonVenv, "Library", "bin"),
+            Path.Combine(pythonVenv, "lib", "site-packages")
         ];
         Runtime.Initialize(new()
         {

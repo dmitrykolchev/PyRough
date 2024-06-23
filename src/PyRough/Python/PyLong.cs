@@ -1,4 +1,9 @@
-﻿using PyRough.Python.Interop;
+﻿// <copyright file="PyLong.cs" company="Division By Zero">
+// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
+using PyRough.Python.Interop;
 
 namespace PyRough.Python;
 
@@ -6,7 +11,7 @@ public unsafe class PyLong : PyObject
 {
     internal PyLong(PyObjectHandle handle) : base(handle)
     {
-        if(handle.GetPyType().Handle != Runtime.Api.PyLong_Type)
+        if (handle.GetPyType().Handle != Runtime.Api.PyLong_Type)
         {
             throw new InvalidCastException();
         }
@@ -16,11 +21,11 @@ public unsafe class PyLong : PyObject
     {
     }
 
-    public PyLong(long value): this(FromInt64(value))
+    public PyLong(long value) : this(FromInt64(value))
     {
     }
 
-    public PyLong(double value): this(FromDouble(value))
+    public PyLong(double value) : this(FromDouble(value))
     {
     }
 

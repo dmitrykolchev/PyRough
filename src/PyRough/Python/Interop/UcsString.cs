@@ -1,23 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿// <copyright file="UcsNativeString.cs" company="Division By Zero">
+// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PyRough.Python.Interop;
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct UcsNativeString : IDisposable
+internal struct UcsString : IDisposable
 {
     internal static readonly int _UCS = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 2 : 4;
     internal static readonly Encoding PyEncoding = _UCS == 2 ? Encodings.UTF16 : Encodings.UTF32;
 
     private IntPtr _ptr;
 
-    public UcsNativeString(string value) : this(value, PyEncoding) { }
+    public UcsString(string value) : this(value, PyEncoding) { }
 
-    private unsafe UcsNativeString(string value, Encoding encoding)
+    private unsafe UcsString(string value, Encoding encoding)
     {
         ArgumentNullException.ThrowIfNull(value);
         ArgumentNullException.ThrowIfNull(encoding);

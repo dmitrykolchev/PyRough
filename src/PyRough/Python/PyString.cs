@@ -1,4 +1,9 @@
-﻿using PyRough.Python.Interop;
+﻿// <copyright file="PyString.cs" company="Division By Zero">
+// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
+using PyRough.Python.Interop;
 
 namespace PyRough.Python;
 
@@ -12,7 +17,7 @@ internal unsafe class PyString : PyObject
         }
     }
 
-    public PyString(string value): this(FromString(value))
+    public PyString(string value) : this(FromString(value))
     {
     }
 
