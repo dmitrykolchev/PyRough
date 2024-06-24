@@ -14,7 +14,7 @@ public unsafe class PyTypeObject : PyObject
     private static readonly ConcurrentDictionary<nint, WeakReference<PyTypeObject>> _resolvedTypes = new();
 
     internal PyTypeObject(nint handle)
-        : base(new PyObjectHandle((Python314._PyObject*)handle.ToPointer()))
+        : base(new PyObjectHandle((Python310._PyObject*)handle.ToPointer()))
     {
     }
 

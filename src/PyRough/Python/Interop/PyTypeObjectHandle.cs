@@ -11,9 +11,9 @@ namespace PyRough.Python.Interop;
 
 internal unsafe struct PyTypeObjectHandle : IPyNativeHandle
 {
-    private readonly Python314._PyTypeObject* _pobj;
+    private readonly Python310._PyTypeObject* _pobj;
 
-    public PyTypeObjectHandle(Python314._PyTypeObject* pobj)
+    public PyTypeObjectHandle(Python310._PyTypeObject* pobj)
     {
         _pobj = pobj;
     }
@@ -48,7 +48,7 @@ internal unsafe struct PyTypeObjectHandle : IPyNativeHandle
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Python314._PyTypeObject* ToPointer()
+    internal Python310._PyTypeObject* ToPointer()
     {
         return _pobj;
     }

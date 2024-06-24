@@ -26,8 +26,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		global.json = global.json
+		csharp.png = csharp.png
 		LICENSE.txt = LICENSE.txt
+		pngegg1.png = pngegg1.png
 		README.md = README.md
+		python.png = python.png
 	EndProjectSection
 EndProject
 Global

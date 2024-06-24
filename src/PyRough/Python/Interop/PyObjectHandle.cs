@@ -15,9 +15,9 @@ internal unsafe struct PyObjectHandle : IPyNativeHandle
 {
     public static readonly PyObjectHandle Null = new();
 
-    private readonly Python314._PyObject* _pobj;
+    private readonly Python310._PyObject* _pobj;
 
-    public PyObjectHandle(Python314._PyObject* handle)
+    public PyObjectHandle(Python310._PyObject* handle)
     {
         _pobj = handle;
     }

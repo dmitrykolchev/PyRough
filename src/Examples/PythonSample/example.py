@@ -53,7 +53,7 @@ def makeImage():
     data = buffer.getvalue()        
     return data
 
-def createPipeline(modelPath: str, loras: list):
+def createPipeline(modelPath: str, loras: list, embeding: str):
     print("loading")    
     print(modelPath)    
     
@@ -65,26 +65,34 @@ def createPipeline(modelPath: str, loras: list):
         use_safetensors=True).to("cuda")
 
 
-    embedding_path = "C:\\StableDiffusion\\models\\embeddings\\negativeXL_D.safetensors"
+    embedding_path = f"C:\\StableDiffusion\\models\\embeddings\\{embeding}.safetensors"
     # pipeline.load_textual_inversion(embedding_path)
     
     # load embeddings to the text encoders
     state_dict = load_file(embedding_path)
+    print(state_dict.keys)
+    print(state_dict)
 
-    # load embeddings of text_encoder 1 (CLIP ViT-L/14)
     pipeline.load_textual_inversion(
-        state_dict["clip_l"],
-        token="negativeXL_D",
+        embedding_path,
+        token=embeding,
         text_encoder=pipeline.text_encoder,
-        tokenizer=pipeline.tokenizer,
-    )
-    # load embeddings of text_encoder 2 (CLIP ViT-G/14)
-    pipeline.load_textual_inversion(
-        state_dict["clip_g"],
-        token="negativeXL_D",
-        text_encoder=pipeline.text_encoder_2,
-        tokenizer=pipeline.tokenizer_2,
-    )    
+        tokenizer=pipeline.tokenizer)
+    
+    # # load embeddings of text_encoder 1 (CLIP ViT-L/14)
+    # pipeline.load_textual_inversion(
+    #     state_dict["clip_l"],
+    #     token=embeding,
+    #     text_encoder=pipeline.text_encoder,
+    #     tokenizer=pipeline.tokenizer,
+    # )
+    # # load embeddings of text_encoder 2 (CLIP ViT-G/14)
+    # pipeline.load_textual_inversion(
+    #     state_dict["clip_g"],
+    #     token=embeding,
+    #     text_encoder=pipeline.text_encoder_2,
+    #     tokenizer=pipeline.tokenizer_2,
+    # )    
     
     lora_path = "C:\\StableDiffusion\\models\\loras\\"
     adapters = [];
@@ -179,5 +187,4 @@ def generateImage(pipeline: object,
             "height": height, 
             "clip_skip": clip_skip
             }
-        
         

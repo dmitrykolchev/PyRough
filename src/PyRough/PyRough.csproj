@@ -3,6 +3,32 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <RootNamespace>PyRough</RootNamespace>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>PyRough</Title>
+    <Company>Dmitry Kolchev</Company>
+    <Description>Python embeding in .NET. This package allows execute Python scripts from C#. Thin is prerelease version which may contain bugs and this package should not be used in production.</Description>
+    <PackageProjectUrl>https://github.com/dmitrykolchev/PyRough</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>python, net, python embedding</PackageTags>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/dmitrykolchev/PyRough</RepositoryUrl>
+    <PackageIcon>pngegg1.png</PackageIcon>
+    <PackageVersion>0.1.0-alpha</PackageVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\pngegg1.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

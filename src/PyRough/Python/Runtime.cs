@@ -7,9 +7,9 @@ public partial class Runtime
 {
     private static Runtime Instance = null!;
 
-    private readonly Python314 _api;
+    private readonly Python310 _api;
 
-    private Runtime(Python314 api)
+    private Runtime(Python310 api)
     {
         _api = api;
     }
@@ -20,7 +20,7 @@ public partial class Runtime
     public static PyObject False { get; private set; } = null!;
     public static PyObject None { get; private set; } = null!;
 
-    internal static Python314 Api => Instance._api;
+    internal static Python310 Api => Instance._api;
 
     public static void Initialize(PythonConfiguration config)
     {
@@ -35,7 +35,7 @@ public partial class Runtime
         {
             throw new InvalidOperationException();
         }
-        var api = new Python314(module);
+        var api = new Python310(module);
         Instance = new Runtime(api);
         Instance.InitializeInternal(config);
     }
