@@ -3,9 +3,15 @@
 // See LICENSE in the project root for license information
 // </copyright>
 
+
+// <copyright file="PyObject.cs" company="Division By Zero">
+// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
 using PyRough.Python.Interop;
 
-namespace PyRough.Python;
+namespace PyRough.Python.Types;
 
 public unsafe class PyObject : IDisposable
 {

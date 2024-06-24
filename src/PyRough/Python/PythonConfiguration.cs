@@ -7,8 +7,8 @@ namespace PyRough.Python;
 
 public class PythonConfiguration
 {
-    public required string PythonDll { get; set; }
-    public required string ProgramName { get; set; }
-    public required string PythonHome { get; set; }
-    public required string Path { get; set; }
+    public required string PythonDll { get; init; }
+    public required string ProgramName { get; init; }
+    public required string PythonHome { get; init; }
+    public required IEnumerable<string> Path { get; init; }
 }

@@ -1,4 +1,5 @@
 ﻿using PyRough.Python.Interop;
+using PyRough.Python.Types;
 using System.Runtime.InteropServices;
 
 namespace PyRough.Python;
@@ -26,12 +27,7 @@ public partial class Runtime
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        string pythonDll = config.PythonDll;
-        string programName = config.ProgramName;
-        string home = config.PythonHome;
-        string path = config.Path;
-
-        if (!NativeLibrary.TryLoad(pythonDll, typeof(Runtime).Assembly, null, out nint module))
+        if (!NativeLibrary.TryLoad(config.PythonDll, typeof(Runtime).Assembly, null, out nint module))
         {
             throw new InvalidOperationException();
         }
@@ -48,8 +44,12 @@ public partial class Runtime
             _api.Py_SetProgramName(programName);
             using UcsString pythonHome = new(config.PythonHome);
             _api.Py_SetPythonHome(pythonHome);
-            using UcsString path = new(config.Path);
-            _api.Py_SetPath(path);
+            if (config.Path != null)
+            {
+                char separator = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ';' : ':';
+                using UcsString path = new(string.Join(separator, config.Path));
+                _api.Py_SetPath(path);
+            }
 
             _api.Py_InitializeEx(1);
 

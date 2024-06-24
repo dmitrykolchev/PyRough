@@ -6,7 +6,7 @@
 using System.Runtime.CompilerServices;
 using PyRough.Python.Interop;
 
-namespace PyRough.Python;
+namespace PyRough.Python.Types;
 
 public unsafe class PyTuple : PyObject
 {

@@ -5,7 +5,7 @@
 
 using PyRough.Python.Interop;
 
-namespace PyRough.Python;
+namespace PyRough.Python.Types;
 
 internal unsafe class PyString : PyObject
 {

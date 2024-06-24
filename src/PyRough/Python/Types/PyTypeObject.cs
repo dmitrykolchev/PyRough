@@ -7,7 +7,7 @@ using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using PyRough.Python.Interop;
 
-namespace PyRough.Python;
+namespace PyRough.Python.Types;
 
 public unsafe class PyTypeObject : PyObject
 {

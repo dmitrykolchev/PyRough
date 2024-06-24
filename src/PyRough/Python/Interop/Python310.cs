@@ -258,37 +258,160 @@ internal unsafe partial class Python310(nint module) : ApiTable(module)
     /// single-phase init modules.
     /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<_PyThreadState*> Py_NewInterpreter;
+    /// <summary>
+    /// Destroy the (sub-)interpreter represented by the given thread state. The given thread state
+    /// must be the current thread state. See the discussion of thread states below. When the call
+    /// returns, the current thread state is NULL. All thread states associated with this interpreter
+    /// are destroyed. The global interpreter lock used by the target interpreter must be held before
+    /// calling this function. No GIL is held when it returns.
+    /// 
+    /// Py_FinalizeEx() will destroy all sub-interpreters that haven’t been explicitly destroyed
+    /// at that point.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<_PyThreadState*, void> Py_EndInterpreter;
+
+    /// <summary>
+    /// Part of the Stable ABI.
+    ///
+    /// Register a cleanup function to be called by Py_FinalizeEx(). The cleanup function will
+    /// be called with no arguments and should return no value. At most 32 cleanup functions can
+    /// be registered. When the registration is successful, Py_AtExit() returns 0; on failure,
+    /// it returns -1. The cleanup function registered last is called first. Each cleanup function
+    /// will be called at most once. Since Python’s internal finalization will have completed
+    /// before the cleanup function, no Python APIs should be called by func.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<nint, int> Py_AtExit;
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// Exit the current process. This calls Py_FinalizeEx() and then calls the standard C library
+    /// function exit(status). If Py_FinalizeEx() indicates an error, the exit status is set to 120.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<int, void> Py_Exit;
 
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// Indicate taking a new strong reference to object o. A function version of Py_XINCREF().
+    /// It can be used for runtime dynamic embedding of Python.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> Py_IncRef;
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// Release a strong reference to object o. A function version of Py_XDECREF(). It can be used
+    /// for runtime dynamic embedding of Python.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> Py_DecRef;
-    [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, void> _Py_Dealloc;
-
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// This API is kept for backward compatibility: setting PyConfig.program_name should be used instead,
+    /// see Python Initialization Configuration.
+    /// This function should be called before Py_Initialize() is called for the first time, if it is
+    /// called at all. It tells the interpreter the value of the argv[0] argument to the main() function
+    /// of the program (converted to wide characters). This is used by Py_GetPath() and some other
+    /// functions below to find the Python run-time libraries relative to the interpreter executable.
+    /// The default value is 'python'. The argument should point to a zero-terminated wide character
+    /// string in static storage whose contents will not change for the duration of the program’s execution.
+    /// No code in the Python interpreter will change the contents of this storage.
+    /// Use Py_DecodeLocale() to decode a bytes string to get a wchar_t* string.
+    /// Deprecated since version 3.11.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<UcsString, void> Py_SetProgramName;
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// This API is kept for backward compatibility: setting PyConfig.home should be used instead,
+    /// see Python Initialization Configuration.
+    /// 
+    /// Set the default “home” directory, that is, the location of the standard Python libraries.
+    /// See PYTHONHOME for the meaning of the argument string.
+    /// 
+    /// The argument should point to a zero-terminated character string in static storage whose
+    /// contents will not change for the duration of the program’s execution. No code in the
+    /// Python interpreter will change the contents of this storage.
+    /// 
+    /// Use Py_DecodeLocale() to decode a bytes string to get a wchar_* string.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<UcsString, void> Py_SetPythonHome;
+
+    /// <summary>
+    /// Part of the Stable ABI since version 3.7.
+    /// This API is kept for backward compatibility: setting PyConfig.module_search_paths and
+    /// PyConfig.module_search_paths_set should be used instead, see Python Initialization Configuration.
+    /// 
+    /// Set the default module search path. If this function is called before Py_Initialize(),
+    /// then Py_GetPath() won’t attempt to compute a default search path but uses the one
+    /// provided instead. This is useful if Python is embedded by an application that has full
+    /// knowledge of the location of all modules. The path components should be separated by
+    /// the platform dependent delimiter character, which is ':' on Unix and macOS, ';' on Windows.
+    /// 
+    /// This also causes sys.executable to be set to the program full path (see Py_GetProgramFullPath())
+    /// and for sys.prefix and sys.exec_prefix to be empty. It is up to the caller to modify these
+    /// if required after calling Py_Initialize().
+    /// 
+    /// Use Py_DecodeLocale() to decode a bytes string to get a wchar_* string.
+    /// 
+    /// The path argument is copied internally, so the caller may free it after the call completes.
+    /// 
+    /// Changed in version 3.8: The program full path is now used for sys.executable, instead of the program name.
+    /// 
+    /// Deprecated since version 3.11.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<UcsString, void> Py_SetPath;
 
-
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// This instance of PyTypeObject represents the Python bytearray type; it is the same object as
+    /// bytearray in the Python layer.
+    /// </summary>
     [Import] public nint PyByteArray_Type;
     [Import] public nint PyByteArrayIter_Type;
 
+    /// <summary>
+    /// Return value: New reference. Part of the Stable ABI.
+    /// Return a new bytearray object from any object, o, that implements the buffer protocol.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyByteArray_FromObject;
+    /// <summary>
+    /// Return value: New reference. Part of the Stable ABI.
+    /// Concat bytearrays a and b and return a new bytearray with the result.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle, PyObjectHandle> PyByteArray_Concat;
+    /// <summary>
+    /// Return value: New reference. Part of the Stable ABI.
+    /// Create a new bytearray object from string and its length, len. On failure, NULL is returned.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<byte*, Py_ssize_t, PyObjectHandle> PyByteArray_FromStringAndSize;
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// Return the size of bytearray after checking for a NULL pointer.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t> PyByteArray_Size;
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// Return the contents of bytearray as a char array after checking for a NULL pointer.
+    /// The returned array always has an extra null byte appended.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, byte*> PyByteArray_AsString;
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// Resize the internal buffer of bytearray to len.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t, int> PyByteArray_Resize;
 
+
+    /// <summary>
+    /// Part of the Stable ABI.
+    /// This instance of PyTypeObject represents the Python bytes type; it is the same
+    /// object as bytes in the Python layer.
+    /// </summary>
     [Import] public nint PyBytes_Type;
     [Import] public nint PyBytesIter_Type;
 
+    /// <summary>
+    /// Return value: New reference. Part of the Stable ABI.
+    /// Return a new bytes object with a copy of the string v as value and length len on success,
+    /// and NULL on failure. If v is NULL, the contents of the bytes object are uninitialized.
+    /// </summary>
     [Import] public delegate* unmanaged[Cdecl]<byte*, Py_ssize_t, PyObjectHandle> PyBytes_FromStringAndSize;
-    [Import] public delegate* unmanaged[Cdecl]<byte*, PyObjectHandle> PyBytes_FromString;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, PyObjectHandle> PyBytes_FromObject;
-    //[Import] public delegate* unmanaged[Cdecl]< PyObject* PyBytes_FromFormatV(const char*, va_list);
-    //[Import] public delegate* unmanaged[Cdecl]< PyObject* PyBytes_FromFormat(const char*, ...);
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, Py_ssize_t> PyBytes_Size;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, byte*> PyBytes_AsString;
     [Import] public delegate* unmanaged[Cdecl]<PyObjectHandle, int, PyObjectHandle> PyBytes_Repr;

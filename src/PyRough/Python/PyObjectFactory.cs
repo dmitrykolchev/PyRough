@@ -5,6 +5,7 @@
 
 using System.Runtime.CompilerServices;
 using PyRough.Python.Interop;
+using PyRough.Python.Types;
 
 namespace PyRough.Python;
 
@@ -55,7 +56,7 @@ internal class PyObjectFactory
 
     public static PyObject Wrap(PyObjectHandle handle, bool addRef)
     {
-        var pyType = handle.GetPyType().Handle;
+        nint pyType = handle.GetPyType().Handle;
 
         if (addRef)
         {

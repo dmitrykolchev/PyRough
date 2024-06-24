@@ -5,8 +5,7 @@
 
 using PyRough.Python.Interop;
 
-namespace PyRough.Python;
-
+namespace PyRough.Python.Types;
 
 public unsafe class PyDict : PyObject
 {
@@ -22,7 +21,7 @@ public unsafe class PyDict : PyObject
     {
     }
 
-    public int Count => GetSize();
+    public int Count => Size();
 
     public bool Contains(string key)
     {
@@ -58,7 +57,7 @@ public unsafe class PyDict : PyObject
         return PyObjectFactory.Wrap(keys, true);
     }
 
-    internal int GetSize()
+    internal int Size()
     {
         return Runtime.Api.PyDict_Size(Handle).ToInt32();
     }

@@ -5,7 +5,7 @@
 
 using PyRough.Python.Interop;
 
-namespace PyRough.Python;
+namespace PyRough.Python.Types;
 
 public unsafe class PyBytes : PyObject
 {
@@ -21,12 +21,7 @@ public unsafe class PyBytes : PyObject
     {
     }
 
-    public int Length => GetLength();
-
-    public int GetLength()
-    {
-        return Runtime.Api.PyBytes_Size(Handle).ToInt32();
-    }
+    public int Length => Size();
 
     public int Read(Span<byte> bytes, int offset)
     {
@@ -55,6 +50,11 @@ public unsafe class PyBytes : PyObject
     public static PyBytes FromObject(PyObject obj)
     {
         return new PyBytes(Runtime.Api.PyBytes_FromObject(obj.Handle));
+    }
+
+    internal int Size()
+    {
+        return Runtime.Api.PyBytes_Size(Handle).ToInt32();
     }
 
     internal static PyObjectHandle FromStringAndSize(ReadOnlySpan<byte> bytes)

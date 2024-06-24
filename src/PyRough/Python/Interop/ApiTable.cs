@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace PyRough.Python.Interop;
+
 internal abstract class ApiTable
 {
     private readonly nint _module;

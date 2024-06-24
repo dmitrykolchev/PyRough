@@ -4,6 +4,7 @@
 // </copyright>
 
 using PyRough.Python;
+using PyRough.Python.Types;
 
 namespace PyRoughSample;
 
@@ -77,7 +78,7 @@ internal class Program
         long seed = -1;
         for (int i = 0; i < 10; ++i)
         {
-            if(seed >= 0)
+            if (seed >= 0)
             {
                 seed++;
             }
@@ -114,7 +115,7 @@ internal class Program
             PythonDll = PythonDll,
             ProgramName = "PySharpSample",
             PythonHome = pythonHome,
-            Path = string.Join(";", paths)
+            Path = paths
         });
     }
 
@@ -146,10 +147,10 @@ print(s)
         }
         string fileName = Path.Combine(path, $"net_{DateTime.UtcNow.ToString("yyyyMMdd_HHmmss")}.png");
 
-        using (var output = File.Create(fileName))
+        using (FileStream output = File.Create(fileName))
         {
             Span<byte> chunk = stackalloc byte[1024];
-            int length = result.GetLength();
+            int length = result.Length;
 
             for (int offset = 0; offset < length;)
             {

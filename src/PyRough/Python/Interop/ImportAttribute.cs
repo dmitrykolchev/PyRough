@@ -5,8 +5,14 @@
 
 namespace PyRough.Python.Interop;
 
+/// <summary>
+/// Attribute for exported python3xx.dll API
+/// </summary>
 [AttributeUsage(AttributeTargets.Field)]
 public class ImportAttribute : Attribute
 {
+    /// <summary>
+    /// Exported name
+    /// </summary>
     public string? Name { get; set; }
 }

@@ -6,7 +6,7 @@
 using System.Collections;
 using PyRough.Python.Interop;
 
-namespace PyRough.Python;
+namespace PyRough.Python.Types;
 
 public unsafe class PyList : PyObject
 {
