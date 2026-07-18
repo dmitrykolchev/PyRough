@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /src/Examples/PyRoughSample/images
 /images
+/gen/python310/include
