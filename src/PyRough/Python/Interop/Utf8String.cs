@@ -1,5 +1,5 @@
-﻿// <copyright file="PinnedUtf8String.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// <copyright file="Utf8String.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
@@ -25,10 +25,10 @@ public readonly ref struct Utf8String
 
         _pool = pool ?? ArrayPool<byte>.Shared;
 
-        int maxByteCount = Encoding.UTF8.GetMaxByteCount(text.Length) + 1;
+        var maxByteCount = Encoding.UTF8.GetMaxByteCount(text.Length) + 1;
         _buffer = _pool.Rent(maxByteCount);
 
-        int written = Encoding.UTF8.GetBytes(text, _buffer);
+        var written = Encoding.UTF8.GetBytes(text, _buffer);
         _buffer[written] = 0; // Нативный null-терминатор
         Length = written;
 

@@ -1,4 +1,4 @@
-﻿// <copyright file="PyLong.cs" company="Division By Zero">
+// <copyright file="PyLong.cs" company="Division By Zero">
 // Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
@@ -52,17 +52,17 @@ public unsafe class PyLong : PyObject
 
     public long ToInt64()
     {
-        return Runtime.Api.PyLong_AsLongLong(Handle);
+        return Runtime.Api.PyLong_AsLongLong(ObjectPtr);
     }
 
     public int ToInt32()
     {
-        return Runtime.Api.PyLong_AsLong(Handle);
+        return Runtime.Api.PyLong_AsLong(ObjectPtr);
     }
 
     public double ToDouble()
     {
-        return Runtime.Api.PyLong_AsDouble(Handle);
+        return Runtime.Api.PyLong_AsDouble(ObjectPtr);
     }
 
     internal static _PyObject* FromInt64(long value)

@@ -6,7 +6,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace PyRough.Python.Interop;
+namespace PyRough.Native;
 
 internal abstract class ApiTable
 {

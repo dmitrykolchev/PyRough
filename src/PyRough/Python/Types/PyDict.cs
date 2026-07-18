@@ -42,7 +42,7 @@ public unsafe class PyDict : PyObject
     {
         ArgumentNullException.ThrowIfNull(key);
         using Utf8String strKey = new(key);
-        var item = Runtime.Api.PyDict_GetItemString(Handle, (sbyte*)strKey.Pointer);
+        var item = Runtime.Api.PyDict_GetItemString(ObjectPtr, (sbyte*)strKey.Pointer);
         return item != null;
     }
 
@@ -50,7 +50,7 @@ public unsafe class PyDict : PyObject
     {
         ArgumentNullException.ThrowIfNull(key);
         using Utf8String strKey = new(key);
-        var item = Runtime.Api.PyDict_GetItemString(Handle, (sbyte*)strKey.Pointer);
+        var item = Runtime.Api.PyDict_GetItemString(ObjectPtr, (sbyte*)strKey.Pointer);
         return PyObjectFactory.Wrap(item, true);
     }
 
@@ -58,24 +58,24 @@ public unsafe class PyDict : PyObject
     {
         ArgumentNullException.ThrowIfNull(key);
         using Utf8String strKey = new(key);
-        return Runtime.Api.PyDict_SetItemString(Handle, (sbyte*)strKey.Pointer, value.Handle) == 0;
+        return Runtime.Api.PyDict_SetItemString(ObjectPtr, (sbyte*)strKey.Pointer, value.ObjectPtr) == 0;
     }
 
     public PyObject? GetKeys()
     {
-        var keys = Runtime.Api.PyDict_Keys(Handle);
+        var keys = Runtime.Api.PyDict_Keys(ObjectPtr);
         return PyObjectFactory.Wrap(keys, true);
     }
 
     public PyObject? GetValues()
     {
-        var keys = Runtime.Api.PyDict_Values(Handle);
+        var keys = Runtime.Api.PyDict_Values(ObjectPtr);
         return PyObjectFactory.Wrap(keys, true);
     }
 
     internal long Size()
     {
-        return Runtime.Api.PyDict_Size(Handle);
+        return Runtime.Api.PyDict_Size(ObjectPtr);
     }
 
     internal static _PyObject* Create()

@@ -45,7 +45,7 @@ public unsafe class PyBytes : PyObject
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public int Read(Span<byte> bytes, int offset)
     {
-        var result = AsStringAndSize(Handle);
+        var result = AsStringAndSize(ObjectPtr);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(offset, result.Length);
         var sourceRest = result.Length - offset;
         fixed (byte* dest = bytes)
@@ -62,7 +62,7 @@ public unsafe class PyBytes : PyObject
     /// <returns>new byte arrray</returns>
     public byte[] ToArray()
     {
-        var result = AsStringAndSize(Handle);
+        var result = AsStringAndSize(ObjectPtr);
         var array = new byte[result.Length];
         result.CopyTo(array);
         return array;
@@ -70,12 +70,12 @@ public unsafe class PyBytes : PyObject
 
     public static PyBytes FromObject(PyObject obj)
     {
-        return new(Runtime.Api.PyBytes_FromObject(obj.Handle));
+        return new(Runtime.Api.PyBytes_FromObject(obj.ObjectPtr));
     }
 
     internal long Size()
     {
-        return Runtime.Api.PyBytes_Size(Handle);
+        return Runtime.Api.PyBytes_Size(ObjectPtr);
     }
 
     internal static _PyObject* FromStringAndSize(ReadOnlySpan<byte> bytes)

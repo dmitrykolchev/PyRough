@@ -41,7 +41,7 @@ internal unsafe class PyObjectFactory
                 }
                 else if (value is PyObject pyobj)
                 {
-                    return pyobj.Handle;
+                    return pyobj.ObjectPtr;
                 }
                 else if (value is ITuple tuple)
                 {
@@ -54,11 +54,11 @@ internal unsafe class PyObjectFactory
         }
     }
 
-    internal static PyObject? Wrap(_PyObject* handle, bool addRef)
+    internal static PyObject Wrap(_PyObject* handle, bool addRef)
     {
         if (handle == null)
         {
-            return null;
+            return Runtime.None;
         }
 
         var pyType = (nint)PyObject.GetPyType(handle);

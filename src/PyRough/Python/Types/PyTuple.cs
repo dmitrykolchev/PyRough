@@ -32,7 +32,7 @@ public unsafe class PyTuple : PyObject
 
     public long GetSize()
     {
-        return Runtime.Api.PyTuple_Size(Handle);
+        return Runtime.Api.PyTuple_Size(ObjectPtr);
     }
 
     public PyObject? GetItem(int index)
@@ -53,7 +53,7 @@ public unsafe class PyTuple : PyObject
 
     internal _PyObject* GetItemInternal(int index)
     {
-        return Runtime.Api.PyTuple_GetItem(Handle, index);
+        return Runtime.Api.PyTuple_GetItem(ObjectPtr, index);
     }
 
     internal static _PyObject* FromTuple(ITuple tuple)

@@ -1,5 +1,5 @@
-// <copyright file="PyObject.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// <copyright file="PyObject.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
@@ -13,32 +13,31 @@ namespace PyRough.Python.Types;
 public unsafe class PyObject : IDisposable
 {
     private static long _currentObjectId;
+    private bool _disposed;
 
     internal PyObject()
     {
     }
 
-    internal PyObject(_PyObject* handle)
+    internal PyObject(_PyObject* obj)
     {
-        if (handle == null)
+        if (obj == null)
         {
-            throw new ArgumentNullException(nameof(handle));
+            throw new ArgumentNullException(nameof(obj));
         }
         ObjectId = Interlocked.Increment(ref _currentObjectId);
-        Handle = handle;
+        ObjectPtr = obj;
     }
 
     internal long ObjectId { get; }
 
-    internal bool IsDisposed { get; private set; }
-
-    internal _PyObject* Handle { get; private set; }
+    internal _PyObject* ObjectPtr { get; private set; }
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal PyTypeObjectHandle GetPyType()
     {
-        return new PyTypeObjectHandle(GetPyType(Handle));
+        return new PyTypeObjectHandle(GetPyType(ObjectPtr));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -69,28 +68,14 @@ public unsafe class PyObject : IDisposable
         return obj->ob_refcnt;
     }
 
-    internal PyObject AddRef()
-    {
-        AddRef(Handle);
-        return this;
-    }
-
-    internal void Release()
-    {
-        Release(Handle);
-    }
-
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal long GetRefCount()
-    {
-        return GetRefCount(Handle);
-    }
+    internal long RefCount() => GetRefCount(ObjectPtr);
 
     public PyObject? GetAttr(string name)
     {
         using Utf8String s = new(name);
-        _PyObject* result = Runtime.Api.PyObject_GetAttrString(Handle, (sbyte*)s.Pointer);
+        var result = Runtime.Api.PyObject_GetAttrString(ObjectPtr, (sbyte*)s.Pointer);
         if (result == null)
         {
             return Runtime.None;
@@ -98,7 +83,10 @@ public unsafe class PyObject : IDisposable
         return PyObjectFactory.Wrap(result, true);
     }
 
-    public void SetAttr(string name, PyObject value) => throw new NotImplementedException();
+    public void SetAttr(string name, PyObject value)
+    {
+        throw new NotImplementedException();
+    }
 
     public PyObject? Invoke(params object[] args)
     {
@@ -108,7 +96,7 @@ public unsafe class PyObject : IDisposable
 
     public PyObject? Invoke(PyTuple args)
     {
-        _PyObject* result = Runtime.Api.PyObject_CallObject(Handle, args.Handle);
+        var result = Runtime.Api.PyObject_CallObject(ObjectPtr, args.ObjectPtr);
         if (Runtime.Api.PyErr_Occurred() != null)
         {
             Runtime.Api.PyErr_Print();
@@ -116,16 +104,16 @@ public unsafe class PyObject : IDisposable
         }
         if (result == null)
         {
-            return default;
+            return Runtime.None;
         }
         return PyObjectFactory.Wrap(result, true);
     }
 
-    public PyObject? Invoke(PyTuple args, PyDict kwargs)
+    public PyObject Invoke(PyTuple args, PyDict kwargs)
     {
         ArgumentNullException.ThrowIfNull(args);
         ArgumentNullException.ThrowIfNull(kwargs);
-        _PyObject* result = Runtime.Api.PyObject_Call(Handle, args.Handle, kwargs.Handle);
+        var result = Runtime.Api.PyObject_Call(ObjectPtr, args.ObjectPtr, kwargs.ObjectPtr);
         if (Runtime.Api.PyErr_Occurred() != null)
         {
             Runtime.Api.PyErr_Print();
@@ -133,14 +121,14 @@ public unsafe class PyObject : IDisposable
         }
         if (result == null)
         {
-            return default;
+            return Runtime.None;
         }
         return PyObjectFactory.Wrap(result, true);
     }
 
-    public PyObject? Invoke()
+    public PyObject Invoke()
     {
-        _PyObject* result = Runtime.Api.PyObject_CallNoArgs(Handle);
+        var result = Runtime.Api.PyObject_CallNoArgs(ObjectPtr);
         if (Runtime.Api.PyErr_Occurred() != null)
         {
             Runtime.Api.PyErr_Print();
@@ -148,20 +136,23 @@ public unsafe class PyObject : IDisposable
         }
         if (result == null)
         {
-            return default;
+            return Runtime.None;
         }
         return PyObjectFactory.Wrap(result, true);
     }
 
-    public void Dump() => Runtime.Api._PyObject_Dump(Handle);
+    public void Dump()
+    {
+        Runtime.Api._PyObject_Dump(ObjectPtr);
+    }
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!IsDisposed)
+        if (!_disposed)
         {
-            IsDisposed = true;
-            Release();
-            Handle = null;
+            _disposed = true;
+            Release(ObjectPtr);
+            ObjectPtr = null;
         }
     }
 
@@ -181,12 +172,15 @@ public unsafe class PyObject : IDisposable
     {
         if (obj is PyObject pyo)
         {
-            return Handle == pyo.Handle;
+            return ObjectPtr == pyo.ObjectPtr;
         }
         return false;
     }
 
-    public override int GetHashCode() => Handle->GetHashCode();
+    public override int GetHashCode()
+    {
+        return ObjectPtr->GetHashCode();
+    }
 
     internal static bool HasType(_PyObject* obj, _PyTypeObject* type)
     {

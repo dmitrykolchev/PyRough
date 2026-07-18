@@ -1,4 +1,4 @@
-﻿// <copyright file="PyFloat.cs" company="Division By Zero">
+// <copyright file="PyFloat.cs" company="Division By Zero">
 // Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
@@ -34,7 +34,7 @@ public unsafe class PyFloat : PyObject
 
     public double ToDouble()
     {
-        return Runtime.Api.PyFloat_AsDouble(Handle);
+        return Runtime.Api.PyFloat_AsDouble(ObjectPtr);
     }
 
     public static explicit operator double(PyFloat value)

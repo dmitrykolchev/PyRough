@@ -27,7 +27,7 @@ internal unsafe class PyString : PyObject
 
     public long GetLength()
     {
-        return Runtime.Api.PyUnicode_GetLength(Handle);
+        return Runtime.Api.PyUnicode_GetLength(ObjectPtr);
     }
 
     public override string ToString()
@@ -35,7 +35,7 @@ internal unsafe class PyString : PyObject
         var length = (int)GetLength();
         fixed (ushort* ptr = new ushort[length])
         {
-            var read = Runtime.Api.PyUnicode_AsWideChar(Handle, ptr, length);
+            var read = Runtime.Api.PyUnicode_AsWideChar(ObjectPtr, ptr, length);
             return new string((char*)ptr, 0, length);
         }
     }

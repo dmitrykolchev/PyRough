@@ -36,22 +36,22 @@ public unsafe class PyList : PyObject
 
     public long GetSize()
     {
-        return Runtime.Api.PyList_Size(Handle);
+        return Runtime.Api.PyList_Size(ObjectPtr);
     }
 
     public bool Append(PyObject value)
     {
-        return AppendInternal(Handle, value.Handle);
+        return AppendInternal(ObjectPtr, value.ObjectPtr);
     }
 
     public bool Sort()
     {
-        return Runtime.Api.PyList_Sort(Handle) == 0;
+        return Runtime.Api.PyList_Sort(ObjectPtr) == 0;
     }
 
     public PyObject? GetItem(int index)
     {
-        var item = GetItemInternal(Handle, index);
+        var item = GetItemInternal(ObjectPtr, index);
         if (item == null)
         {
             return null;
@@ -62,7 +62,7 @@ public unsafe class PyList : PyObject
     public bool SetItem(int index, PyObject? value)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(index);
-        return SetItemInternal(Handle, index, value?.Handle);
+        return SetItemInternal(ObjectPtr, index, value?.ObjectPtr);
     }
 
     internal static _PyObject* GetItemInternal(_PyObject* list, int index)

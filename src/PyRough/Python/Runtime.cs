@@ -47,14 +47,14 @@ public partial class Runtime
         if (_api.Py_IsInitialized() == 0)
         {
             using UcsString programName = new(config.ProgramName);
-            _api.Py_SetProgramName((ushort*)programName.RawPointer);
+            _api.Py_SetProgramName((ushort*)programName.Pointer);
             using UcsString pythonHome = new(config.PythonHome);
-            _api.Py_SetPythonHome((ushort*)pythonHome.RawPointer);
+            _api.Py_SetPythonHome((ushort*)pythonHome.Pointer);
             if (config.Path != null)
             {
                 var separator = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ';' : ':';
                 using UcsString path = new(string.Join(separator, config.Path));
-                _api.Py_SetPath((ushort*)path.RawPointer);
+                _api.Py_SetPath((ushort*)path.Pointer);
             }
 
             _api.Py_InitializeEx(1);
