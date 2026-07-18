@@ -1,21 +1,21 @@
-﻿// <copyright file="PyObjectFactory.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// <copyright file="PyObjectFactory.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
 using System.Runtime.CompilerServices;
-using PyRough.Python.Interop;
+using PyRough.Native.Python310;
 using PyRough.Python.Types;
 
 namespace PyRough.Python;
 
-internal class PyObjectFactory
+internal unsafe class PyObjectFactory
 {
-    public static PyObjectHandle FromClrObject(object? value)
+    public static _PyObject* FromClrObject(object? value)
     {
         if (value is null)
         {
-            return PyObjectHandle.Null;
+            return null;
         }
         var typeCode = Type.GetTypeCode(value.GetType());
         switch (typeCode)
@@ -54,13 +54,18 @@ internal class PyObjectFactory
         }
     }
 
-    public static PyObject Wrap(PyObjectHandle handle, bool addRef)
+    internal static PyObject? Wrap(_PyObject* handle, bool addRef)
     {
-        nint pyType = handle.GetPyType().Handle;
+        if (handle == null)
+        {
+            return null;
+        }
+
+        var pyType = (nint)PyObject.GetPyType(handle);
 
         if (addRef)
         {
-            handle.AddRef();
+            PyObject.AddRef(handle);
         }
 
         if (pyType == Runtime.Api.PyUnicode_Type)

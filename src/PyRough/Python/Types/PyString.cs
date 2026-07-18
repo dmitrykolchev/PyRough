@@ -1,17 +1,17 @@
-﻿// <copyright file="PyString.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// <copyright file="PyString.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
-using PyRough.Python.Interop;
+using PyRough.Native.Python310;
 
 namespace PyRough.Python.Types;
 
 internal unsafe class PyString : PyObject
 {
-    internal PyString(PyObjectHandle o) : base(o)
+    internal PyString(_PyObject* o) : base(o)
     {
-        if (o.GetPyType().Handle != Runtime.Api.PyUnicode_Type)
+        if (!HasType(o, Runtime.Api.PyUnicode_Type))
         {
             throw new InvalidCastException();
         }
@@ -21,31 +21,31 @@ internal unsafe class PyString : PyObject
     {
     }
 
-    public int Length => GetLength();
+    public int Length => (int)GetLength();
 
     public string Value => ToString();
 
-    public int GetLength()
+    public long GetLength()
     {
-        return Runtime.Api.PyUnicode_GetLength(Handle).ToInt32();
+        return Runtime.Api.PyUnicode_GetLength(Handle);
     }
 
     public override string ToString()
     {
-        int length = GetLength();
-        fixed (char* ptr = new char[length])
+        var length = (int)GetLength();
+        fixed (ushort* ptr = new ushort[length])
         {
-            int read = Runtime.Api.PyUnicode_AsWideChar(Handle, ptr, length).ToInt32();
-            return new string(ptr, 0, length);
+            var read = Runtime.Api.PyUnicode_AsWideChar(Handle, ptr, length);
+            return new string((char*)ptr, 0, length);
         }
     }
 
-    internal static PyObjectHandle FromString(string s)
+    internal static _PyObject* FromString(string s)
     {
         ArgumentNullException.ThrowIfNull(s);
-        fixed (char* ptr = s)
+        fixed (void* ptr = s)
         {
-            return Runtime.Api.PyUnicode_FromWideChar(ptr, s.Length);
+            return Runtime.Api.PyUnicode_FromWideChar((ushort*)ptr, s.Length);
         }
     }
 }

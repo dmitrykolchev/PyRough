@@ -1,6 +1,12 @@
-﻿using PyRough.Python.Interop;
-using PyRough.Python.Types;
+// <copyright file="Runtime.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
+// See LICENSE in the project root for license information
+// </copyright>
+
 using System.Runtime.InteropServices;
+using PyRough.Native.Python310;
+using PyRough.Python.Interop;
+using PyRough.Python.Types;
 
 namespace PyRough.Python;
 
@@ -8,9 +14,9 @@ public partial class Runtime
 {
     private static Runtime Instance = null!;
 
-    private readonly Python310 _api;
+    private readonly Python310ApiTable _api;
 
-    private Runtime(Python310 api)
+    private Runtime(Python310ApiTable api)
     {
         _api = api;
     }
@@ -21,17 +27,17 @@ public partial class Runtime
     public static PyObject False { get; private set; } = null!;
     public static PyObject None { get; private set; } = null!;
 
-    internal static Python310 Api => Instance._api;
+    internal static Python310ApiTable Api => Instance._api;
 
     public static void Initialize(PythonConfiguration config)
     {
         ArgumentNullException.ThrowIfNull(config);
 
-        if (!NativeLibrary.TryLoad(config.PythonDll, typeof(Runtime).Assembly, null, out nint module))
+        if (!NativeLibrary.TryLoad(config.PythonDll, typeof(Runtime).Assembly, null, out var module))
         {
             throw new InvalidOperationException();
         }
-        var api = new Python310(module);
+        var api = new Python310ApiTable(module);
         Instance = new Runtime(api);
         Instance.InitializeInternal(config);
     }
@@ -41,14 +47,14 @@ public partial class Runtime
         if (_api.Py_IsInitialized() == 0)
         {
             using UcsString programName = new(config.ProgramName);
-            _api.Py_SetProgramName(programName);
+            _api.Py_SetProgramName((ushort*)programName.RawPointer);
             using UcsString pythonHome = new(config.PythonHome);
-            _api.Py_SetPythonHome(pythonHome);
+            _api.Py_SetPythonHome((ushort*)pythonHome.RawPointer);
             if (config.Path != null)
             {
-                char separator = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ';' : ':';
+                var separator = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ';' : ':';
                 using UcsString path = new(string.Join(separator, config.Path));
-                _api.Py_SetPath(path);
+                _api.Py_SetPath((ushort*)path.RawPointer);
             }
 
             _api.Py_InitializeEx(1);
@@ -74,9 +80,9 @@ public partial class Runtime
     /// </summary>
     /// <param name="script"></param>
     /// <returns></returns>
-    public unsafe static int Run(string script)
+    public static unsafe int Run(string script)
     {
         using Utf8String buffer = new(script);
-        return Api.PyRun_SimpleStringFlags(buffer, null);
+        return Api.PyRun_SimpleStringFlags((sbyte*)buffer.Pointer, null);
     }
 }

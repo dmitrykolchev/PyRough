@@ -1,18 +1,18 @@
-﻿// <copyright file="PyTuple.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// <copyright file="PyTuple.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
 using System.Runtime.CompilerServices;
-using PyRough.Python.Interop;
+using PyRough.Native.Python310;
 
 namespace PyRough.Python.Types;
 
 public unsafe class PyTuple : PyObject
 {
-    internal PyTuple(PyObjectHandle handle) : base(handle)
+    internal PyTuple(_PyObject* handle) : base(handle)
     {
-        if (handle.GetPyType().Handle != Runtime.Api.PyTuple_Type)
+        if (!HasType(handle, Runtime.Api.PyTuple_Type))
         {
             throw new InvalidCastException();
         }
@@ -26,52 +26,50 @@ public unsafe class PyTuple : PyObject
     {
     }
 
-    public PyObject this[int index]
+    public PyObject? this[int index] => GetItem(index);
+
+    public int Length => (int)GetSize();
+
+    public long GetSize()
     {
-        get => GetItem(index);
+        return Runtime.Api.PyTuple_Size(Handle);
     }
 
-    public int Length => GetSize();
-
-    public int GetSize()
+    public PyObject? GetItem(int index)
     {
-        return Runtime.Api.PyTuple_Size(Handle).ToInt32();
-    }
-
-    public PyObject GetItem(int index)
-    {
-        PyObjectHandle result = GetItemInternal(index);
+        var result = GetItemInternal(index);
         return PyObjectFactory.Wrap(result, true);
     }
 
-    internal static void SetItemInternal(PyObjectHandle tuple, int index, PyObjectHandle handle)
+    internal static void SetItemInternal(_PyObject* tuple, int index, _PyObject* handle)
     {
-        int result = Runtime.Api.PyTuple_SetItem(tuple, index, handle);
+        ArgumentNullException.ThrowIfNull(tuple);
+        var result = Runtime.Api.PyTuple_SetItem(tuple, index, handle);
         if (result != 0)
         {
             throw new ArgumentOutOfRangeException(nameof(index));
         }
     }
 
-    internal PyObjectHandle GetItemInternal(int index)
+    internal _PyObject* GetItemInternal(int index)
     {
         return Runtime.Api.PyTuple_GetItem(Handle, index);
     }
 
-    internal static PyObjectHandle FromTuple(ITuple tuple)
+    internal static _PyObject* FromTuple(ITuple tuple)
     {
-        PyObjectHandle result = Runtime.Api.PyTuple_New(tuple.Length);
-        for (int i = 0; i < tuple.Length; ++i)
+        var result = Runtime.Api.PyTuple_New(tuple.Length);
+        for (var i = 0; i < tuple.Length; ++i)
         {
             SetItemInternal(result, i, PyObjectFactory.FromClrObject(tuple[i]));
         }
         return result;
     }
 
-    internal static PyObjectHandle FromList(params object?[] values)
+    internal static _PyObject* FromList(params object?[] values)
     {
-        PyObjectHandle result = Runtime.Api.PyTuple_New(values.Length);
-        for (int i = 0; i < values.Length; ++i)
+        var result = Runtime.Api.PyTuple_New(values.Length);
+        for (var i = 0; i < values.Length; ++i)
         {
             SetItemInternal(result, i, PyObjectFactory.FromClrObject(values[i]));
         }

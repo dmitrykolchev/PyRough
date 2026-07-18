@@ -1,5 +1,5 @@
-﻿// <copyright file="Program.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// <copyright file="Program.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
@@ -18,7 +18,7 @@ internal class Program
 
         SayHello();
 
-        PyModule module = PyModule.Import(@"example");
+        var module = PyModule.Import(@"example");
 
         //PyObject makeImage = module.GetAttr("makeImage")!;
         //PyBytes image = (PyBytes)makeImage.Invoke()!;
@@ -29,7 +29,7 @@ internal class Program
         var createPipeline = module.GetAttr("createPipeline")!;
 
         //string model = @"C:\StableDiffusion\models\checkpoints\ponyDiffusionV6XL_v6StartWithThisOne.safetensors";
-        string model = @"C:\StableDiffusion\models\checkpoints\realcartoonXL_v6.safetensors";
+        var model = @"C:\StableDiffusion\models\checkpoints\realcartoonXL_v6.safetensors";
         //string model = @"C:\StableDiffusion\models\checkpoints\juggernautXL_juggernautX.safetensors";
         //string model = @"C:\StableDiffusion\models\checkpoints\sd_xl_base_1.0_0.9vae.safetensors";
 
@@ -72,11 +72,11 @@ internal class Program
             "core_6, score_5, score_4, worst quality, low quality, text, censored, deformed, bad hand, blurry, (watermark), multiple phones, weights, bunny ears, extra hands,easynegative"
             )!;
 
-        Console.WriteLine($"{prompt.ToString()}");
+        Console.WriteLine($"{prompt}");
 
         var generateImage = module.GetAttr("generateImage")!;
         long seed = -1;
-        for (int i = 0; i < 10; ++i)
+        for (var i = 0; i < 10; ++i)
         {
             if (seed >= 0)
             {
@@ -91,14 +91,14 @@ internal class Program
                41,
                7.5,
                2);
-            using PyDict? result = GenerateImage(generateImage, p);
+            using var result = GenerateImage(generateImage, p);
         }
     }
 
     private static void Initialize()
     {
-        string pythonHome = @"C:\Program Files\Python310";
-        string pythonVenv = @"C:\Projects\venv";
+        var pythonHome = @"C:\Program Files\Python310";
+        var pythonVenv = @"C:\Projects\.venv";
         List<string> paths = [
             "",
             "C:\\Projects\\2024\\PythonInterop\\src\\Examples\\PythonSample",
@@ -121,7 +121,7 @@ internal class Program
 
     private static void SayHello()
     {
-        string script = @"s = ""Hello, World""
+        var script = @"s = ""Hello, World""
 print(s)
 ";
         Console.WriteLine(Runtime.Run(script));
@@ -129,10 +129,10 @@ print(s)
 
     private static PyDict? GenerateImage(PyObject generateImage, PyTuple p)
     {
-        PyObject result = generateImage.Invoke(p)!;
+        var result = generateImage.Invoke(p)!;
         if (result is PyDict dict)
         {
-            SaveImage((PyBytes)dict.GetItem("image"));
+            SaveImage((PyBytes)dict.GetItem("image")!);
             return dict;
         }
         return null;
@@ -140,26 +140,26 @@ print(s)
 
     private static void SaveImage(PyBytes result)
     {
-        string path = "D:\\Images";
+        var path = "D:\\Images";
         if (!Directory.Exists(path))
         {
             Directory.CreateDirectory(path);
         }
-        string fileName = Path.Combine(path, $"net_{DateTime.UtcNow.ToString("yyyyMMdd_HHmmss")}.png");
+        var fileName = Path.Combine(path, $"net_{DateTime.UtcNow:yyyyMMdd_HHmmss}.png");
 
-        using (FileStream output = File.Create(fileName))
+        using (var output = File.Create(fileName))
         {
             Span<byte> chunk = stackalloc byte[1024];
-            int length = result.Length;
+            var length = (int)result.Length;
 
-            for (int offset = 0; offset < length;)
+            for (var offset = 0; offset < length;)
             {
-                int read = result.Read(chunk, offset);
+                var read = result.Read(chunk, offset);
                 if (read == 0)
                 {
                     break;
                 }
-                output.Write(chunk.Slice(0, read));
+                output.Write(chunk[..read]);
                 offset += read;
             }
         }

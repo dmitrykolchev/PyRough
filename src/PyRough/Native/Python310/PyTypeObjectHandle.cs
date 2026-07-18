@@ -6,14 +6,15 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using PyRough.Python.Interop;
 
-namespace PyRough.Python.Interop;
+namespace PyRough.Native.Python310;
 
 internal unsafe struct PyTypeObjectHandle : IPyNativeHandle
 {
-    private readonly Python310._PyTypeObject* _pobj;
+    private readonly _PyTypeObject* _pobj;
 
-    public PyTypeObjectHandle(Python310._PyTypeObject* pobj)
+    public PyTypeObjectHandle(_PyTypeObject* pobj)
     {
         _pobj = pobj;
     }
@@ -28,7 +29,7 @@ internal unsafe struct PyTypeObjectHandle : IPyNativeHandle
         {
             if (!IsNull)
             {
-                byte* name = (*_pobj).tp_name;
+                sbyte* name = (*_pobj).tp_name;
                 if (name != null)
                 {
                     int i = 0;
@@ -48,7 +49,7 @@ internal unsafe struct PyTypeObjectHandle : IPyNativeHandle
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Python310._PyTypeObject* ToPointer()
+    internal _PyTypeObject* ToPointer()
     {
         return _pobj;
     }

@@ -1,41 +1,56 @@
-﻿// <copyright file="PyDict.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// <copyright file="PyDict.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
+using PyRough.Native.Python310;
 using PyRough.Python.Interop;
 
 namespace PyRough.Python.Types;
 
+/// <summary>
+/// This subtype of PyObject represents a Python dictionary object.
+/// </summary>
 public unsafe class PyDict : PyObject
 {
-    internal PyDict(PyObjectHandle handle) : base(handle)
+    /// <summary>
+    /// Internal constructor
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <exception cref="InvalidCastException"></exception>
+    internal PyDict(_PyObject* handle) : base(handle)
     {
-        if (handle.GetPyType().Handle != Runtime.Api.PyDict_Type)
+        if (!HasType(handle, Runtime.Api.PyDict_Type))
         {
             throw new InvalidCastException();
         }
     }
 
+    /// <summary>
+    /// Instantiates new empty PyDict object
+    /// </summary>
     public PyDict() : base(Create())
     {
     }
 
-    public int Count => Size();
+    /// <summary>
+    /// Returns number of entries in PyDict
+    /// </summary>
+    public int Count => (int)Size();
 
     public bool Contains(string key)
     {
         ArgumentNullException.ThrowIfNull(key);
         using Utf8String strKey = new(key);
-        PyObjectHandle item = Runtime.Api.PyDict_GetItemString(Handle, strKey);
-        return !item.IsNull;
+        var item = Runtime.Api.PyDict_GetItemString(Handle, (sbyte*)strKey.Pointer);
+        return item != null;
     }
 
-    public PyObject GetItem(string key)
+    public PyObject? GetItem(string key)
     {
         ArgumentNullException.ThrowIfNull(key);
         using Utf8String strKey = new(key);
-        PyObjectHandle item = Runtime.Api.PyDict_GetItemString(Handle, strKey);
+        var item = Runtime.Api.PyDict_GetItemString(Handle, (sbyte*)strKey.Pointer);
         return PyObjectFactory.Wrap(item, true);
     }
 
@@ -43,26 +58,27 @@ public unsafe class PyDict : PyObject
     {
         ArgumentNullException.ThrowIfNull(key);
         using Utf8String strKey = new(key);
-        return Runtime.Api.PyDict_SetItemString(Handle, strKey, value.Handle) == 0;
+        return Runtime.Api.PyDict_SetItemString(Handle, (sbyte*)strKey.Pointer, value.Handle) == 0;
     }
 
-    public PyObject GetKeys()
+    public PyObject? GetKeys()
     {
-        PyObjectHandle keys = Runtime.Api.PyDict_Keys(Handle);
-        return PyObjectFactory.Wrap(keys, true);
-    }
-    public PyObject GetValues()
-    {
-        PyObjectHandle keys = Runtime.Api.PyDict_Values(Handle);
+        var keys = Runtime.Api.PyDict_Keys(Handle);
         return PyObjectFactory.Wrap(keys, true);
     }
 
-    internal int Size()
+    public PyObject? GetValues()
     {
-        return Runtime.Api.PyDict_Size(Handle).ToInt32();
+        var keys = Runtime.Api.PyDict_Values(Handle);
+        return PyObjectFactory.Wrap(keys, true);
     }
 
-    internal static PyObjectHandle Create()
+    internal long Size()
+    {
+        return Runtime.Api.PyDict_Size(Handle);
+    }
+
+    internal static _PyObject* Create()
     {
         return Runtime.Api.PyDict_New();
     }

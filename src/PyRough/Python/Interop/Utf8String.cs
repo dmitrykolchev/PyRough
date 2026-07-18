@@ -1,72 +1,64 @@
-﻿// <copyright file="Utf8String.cs" company="Division By Zero">
+﻿// <copyright file="PinnedUtf8String.cs" company="Division By Zero">
 // Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
+using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace PyRough.Python.Interop;
 
-[StructLayout(LayoutKind.Sequential)]
-internal struct Utf8String : IDisposable
+/// <summary>
+/// Creates pinned UTF-8 string from UTF-16 string
+/// </summary>
+public readonly ref struct Utf8String
 {
-    private nint _ptr;
+    private readonly ArrayPool<byte> _pool;
+    private readonly byte[] _buffer;
+    private readonly GCHandle _handle;
 
-    public unsafe Utf8String(string value)
+    public Utf8String(string text, ArrayPool<byte>? pool = default)
     {
-        ArgumentNullException.ThrowIfNull(value);
-        Encoding encoding = Encodings.UTF8;
-        int byteCount = encoding.GetByteCount(value);
-        _ptr = Marshal.AllocHGlobal(checked(byteCount + 1));
-        try
-        {
-            encoding.GetBytes(value, new Span<byte>(Bytes, byteCount));
-            Bytes[byteCount] = 0;
-        }
-        catch
-        {
-            Dispose();
-            throw;
-        }
+        ArgumentNullException.ThrowIfNull(text);
+
+        _pool = pool ?? ArrayPool<byte>.Shared;
+
+        int maxByteCount = Encoding.UTF8.GetMaxByteCount(text.Length) + 1;
+        _buffer = _pool.Rent(maxByteCount);
+
+        int written = Encoding.UTF8.GetBytes(text, _buffer);
+        _buffer[written] = 0; // Нативный null-терминатор
+        Length = written;
+
+        // Используем только Pinned, так как адрес нужен в 99% случаев.
+        _handle = GCHandle.Alloc(_buffer, GCHandleType.Pinned);
     }
 
-    public IntPtr RawPointer => _ptr;
+    /// <summary>
+    /// byte buffer length without terminating \0
+    /// </summary>
+    public int Length { get; }
 
-    private unsafe byte* Bytes => (byte*)_ptr;
-
-    public unsafe string? ToString(Encoding encoding)
+    public nint Pointer
     {
-        ArgumentNullException.ThrowIfNull(encoding);
-
-        if (RawPointer == IntPtr.Zero)
-        {
-            return null;
-        }
-        return encoding.GetString(Bytes, byteCount: checked((int)GetByteCount()));
-    }
-
-    public unsafe nuint GetByteCount()
-    {
-        if (RawPointer == IntPtr.Zero)
-        {
-            throw new InvalidOperationException();
-        }
-
-        nuint zeroIndex = 0;
-        while (Bytes[zeroIndex] != 0)
-        {
-            zeroIndex++;
-        }
-        return zeroIndex;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _handle.AddrOfPinnedObject();
     }
 
     public void Dispose()
     {
-        if (RawPointer != IntPtr.Zero)
+        // Сначала освобождаем дескриптор, чтобы распинить память для GC
+        if (_handle.IsAllocated)
         {
-            Marshal.FreeHGlobal(RawPointer);
-            _ptr = IntPtr.Zero;
+            _handle.Free();
+        }
+
+        // Возвращаем массив в пул
+        if (_buffer != null)
+        {
+            _pool.Return(_buffer);
         }
     }
 }

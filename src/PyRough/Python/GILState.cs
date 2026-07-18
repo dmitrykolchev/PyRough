@@ -1,5 +1,5 @@
-﻿// <copyright file="GILState.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// <copyright file="GILState.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
@@ -31,9 +31,10 @@ public class GILState : IDisposable
         GC.SuppressFinalize(this);
         _disposed = true;
     }
-
+#pragma  warning disable CA1821
     ~GILState()
     {
         throw new InvalidOperationException("GIL must always be released, and it must be released from the same thread that acquired it.");
     }
+#pragma warning restore CA1821
 }

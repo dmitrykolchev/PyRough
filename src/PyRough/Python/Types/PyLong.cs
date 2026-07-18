@@ -9,15 +9,15 @@
 // See LICENSE in the project root for license information
 // </copyright>
 
-using PyRough.Python.Interop;
+using PyRough.Native.Python310;
 
 namespace PyRough.Python.Types;
 
 public unsafe class PyLong : PyObject
 {
-    internal PyLong(PyObjectHandle handle) : base(handle)
+    internal PyLong(_PyObject* handle) : base(handle)
     {
-        if (handle.GetPyType().Handle != Runtime.Api.PyLong_Type)
+        if ((nint)handle->ob_type != Runtime.Api.PyLong_Type)
         {
             throw new InvalidCastException();
         }
@@ -65,19 +65,18 @@ public unsafe class PyLong : PyObject
         return Runtime.Api.PyLong_AsDouble(Handle);
     }
 
-    internal static PyObjectHandle FromInt64(long value)
+    internal static _PyObject* FromInt64(long value)
     {
         return Runtime.Api.PyLong_FromLongLong(value);
     }
 
-    internal static PyObjectHandle FromInt32(int value)
+    internal static _PyObject* FromInt32(int value)
     {
         return Runtime.Api.PyLong_FromLong(value);
     }
 
-    internal static PyObjectHandle FromDouble(double value)
+    internal static _PyObject* FromDouble(double value)
     {
         return Runtime.Api.PyLong_FromDouble(value);
     }
-
 }

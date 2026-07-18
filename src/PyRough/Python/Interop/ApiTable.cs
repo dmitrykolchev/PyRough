@@ -1,5 +1,5 @@
-﻿// <copyright file="ApiTable.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
+// <copyright file="ApiTable.cs" company="Dmitry Kolchev">
+// Copyright (c) 2026 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
@@ -10,15 +10,13 @@ namespace PyRough.Python.Interop;
 
 internal abstract class ApiTable
 {
-    private readonly nint _module;
-
     protected ApiTable(nint module)
     {
-        _module = module;
+        Module = module;
         Initialize();
     }
 
-    public nint Module => _module;
+    public nint Module { get; }
 
     protected virtual void Initialize()
     {
@@ -27,8 +25,8 @@ internal abstract class ApiTable
             .Where(t => t.GetCustomAttribute<ImportAttribute>() != null);
         foreach (var importField in importFields)
         {
-            ImportAttribute importAttribute = importField.GetCustomAttribute<ImportAttribute>()!;
-            string importName = importAttribute.Name ?? importField.Name;
+            var importAttribute = importField.GetCustomAttribute<ImportAttribute>()!;
+            var importName = importAttribute.Name ?? importField.Name;
             importField.SetValue(this, GetExport(importName));
         }
     }

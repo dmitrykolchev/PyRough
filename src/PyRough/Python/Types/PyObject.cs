@@ -1,61 +1,104 @@
-﻿// <copyright file="PyObject.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
-// See LICENSE in the project root for license information
-// </copyright>
-
-
 // <copyright file="PyObject.cs" company="Division By Zero">
 // Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
 // See LICENSE in the project root for license information
 // </copyright>
 
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using PyRough.Native.Python310;
 using PyRough.Python.Interop;
 
 namespace PyRough.Python.Types;
 
 public unsafe class PyObject : IDisposable
 {
-    private static long CurrentObjectId = 0;
-    private readonly long _objectId;
-
-    private bool _disposed;
-    private PyObjectHandle _handle;
+    private static long _currentObjectId;
 
     internal PyObject()
     {
     }
 
-    internal PyObject(PyObjectHandle handle)
+    internal PyObject(_PyObject* handle)
     {
-        if (handle.IsNull)
+        if (handle == null)
         {
             throw new ArgumentNullException(nameof(handle));
         }
-        _objectId = Interlocked.Increment(ref CurrentObjectId);
-        _handle = handle;
+        ObjectId = Interlocked.Increment(ref _currentObjectId);
+        Handle = handle;
     }
 
-    internal long ObjectId => _objectId;
+    internal long ObjectId { get; }
 
-    internal bool IsDisposed => _disposed;
+    internal bool IsDisposed { get; private set; }
 
-    internal PyObjectHandle Handle => _handle;
+    internal _PyObject* Handle { get; private set; }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal PyTypeObjectHandle GetPyType()
+    {
+        return new PyTypeObjectHandle(GetPyType(Handle));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static _PyTypeObject* GetPyType(_PyObject* obj)
+    {
+        ArgumentNullException.ThrowIfNull(obj);
+        return obj->ob_type;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void AddRef(_PyObject* obj)
+    {
+        ArgumentNullException.ThrowIfNull(obj);
+        Runtime.Api.Py_IncRef(obj);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void Release(_PyObject* obj)
+    {
+        ArgumentNullException.ThrowIfNull(obj);
+        Runtime.Api.Py_DecRef(obj);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static long GetRefCount(_PyObject* obj)
+    {
+        ArgumentNullException.ThrowIfNull(obj);
+        return obj->ob_refcnt;
+    }
+
+    internal PyObject AddRef()
+    {
+        AddRef(Handle);
+        return this;
+    }
+
+    internal void Release()
+    {
+        Release(Handle);
+    }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal long GetRefCount()
+    {
+        return GetRefCount(Handle);
+    }
 
     public PyObject? GetAttr(string name)
     {
         using Utf8String s = new(name);
-        PyObjectHandle result = Runtime.Api.PyObject_GetAttrString(Handle, s);
-        if (result.IsNull)
+        _PyObject* result = Runtime.Api.PyObject_GetAttrString(Handle, (sbyte*)s.Pointer);
+        if (result == null)
         {
             return Runtime.None;
         }
         return PyObjectFactory.Wrap(result, true);
     }
 
-    public void SetAttr(string name, PyObject value)
-    {
-        throw new NotImplementedException();
-    }
+    public void SetAttr(string name, PyObject value) => throw new NotImplementedException();
 
     public PyObject? Invoke(params object[] args)
     {
@@ -65,13 +108,13 @@ public unsafe class PyObject : IDisposable
 
     public PyObject? Invoke(PyTuple args)
     {
-        PyObjectHandle result = Runtime.Api.PyObject_CallObject(Handle, args.Handle);
-        if (!Runtime.Api.PyErr_Occurred().IsNull)
+        _PyObject* result = Runtime.Api.PyObject_CallObject(Handle, args.Handle);
+        if (Runtime.Api.PyErr_Occurred() != null)
         {
             Runtime.Api.PyErr_Print();
             throw new InvalidOperationException();
         }
-        if (result.IsNull)
+        if (result == null)
         {
             return default;
         }
@@ -82,13 +125,13 @@ public unsafe class PyObject : IDisposable
     {
         ArgumentNullException.ThrowIfNull(args);
         ArgumentNullException.ThrowIfNull(kwargs);
-        PyObjectHandle result = Runtime.Api.PyObject_Call(Handle, args.Handle, kwargs.Handle);
-        if (!Runtime.Api.PyErr_Occurred().IsNull)
+        _PyObject* result = Runtime.Api.PyObject_Call(Handle, args.Handle, kwargs.Handle);
+        if (Runtime.Api.PyErr_Occurred() != null)
         {
             Runtime.Api.PyErr_Print();
             throw new InvalidOperationException();
         }
-        if (result.IsNull)
+        if (result == null)
         {
             return default;
         }
@@ -97,31 +140,28 @@ public unsafe class PyObject : IDisposable
 
     public PyObject? Invoke()
     {
-        PyObjectHandle result = Runtime.Api.PyObject_CallNoArgs(Handle);
-        if (!Runtime.Api.PyErr_Occurred().IsNull)
+        _PyObject* result = Runtime.Api.PyObject_CallNoArgs(Handle);
+        if (Runtime.Api.PyErr_Occurred() != null)
         {
             Runtime.Api.PyErr_Print();
             throw new InvalidOperationException();
         }
-        if (result.IsNull)
+        if (result == null)
         {
             return default;
         }
         return PyObjectFactory.Wrap(result, true);
     }
 
-    public void Dump()
-    {
-        Runtime.Api._PyObject_Dump(Handle);
-    }
+    public void Dump() => Runtime.Api._PyObject_Dump(Handle);
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposed)
+        if (!IsDisposed)
         {
-            Handle.Release();
-            _handle = PyObjectHandle.Null;
-            _disposed = true;
+            IsDisposed = true;
+            Release();
+            Handle = null;
         }
     }
 
@@ -137,44 +177,23 @@ public unsafe class PyObject : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public PyTypeObject GetPyType()
-    {
-        ;
-        return new PyTypeObject(Handle.GetPyType().Handle);
-    }
-
     public override bool Equals(object? obj)
     {
         if (obj is PyObject pyo)
         {
-            return Handle.Handle == pyo.Handle.Handle;
+            return Handle == pyo.Handle;
         }
         return false;
     }
 
-    public override int GetHashCode()
-    {
-        return Handle.Handle.GetHashCode();
-    }
+    public override int GetHashCode() => Handle->GetHashCode();
 
-    internal void Attach(PyObjectHandle handle)
+    internal static bool HasType(_PyObject* obj, _PyTypeObject* type)
     {
-        if (handle.IsNull)
-        {
-            throw new ArgumentNullException(nameof(handle));
-        }
-        if (!_handle.IsNull)
-        {
-            _handle.Release();
-        }
-        _handle = handle;
+        return obj->ob_type == type;
     }
-
-    internal PyObjectHandle Detach()
+    internal static bool HasType(_PyObject* obj, nint type)
     {
-        PyObjectHandle result = _handle;
-        _handle = PyObjectHandle.Null;
-        return result;
+        return obj->ob_type == (_PyTypeObject*)type;
     }
-
 }

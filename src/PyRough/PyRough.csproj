@@ -14,6 +14,7 @@
     <RepositoryUrl>https://github.com/dmitrykolchev/PyRough</RepositoryUrl>
     <PackageIcon>pngegg1.png</PackageIcon>
     <PackageVersion>0.1.0-alpha</PackageVersion>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,14 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PyRough.Unsafe\PyRough.Unsafe.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.34928.147
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.12009.203
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PyRough", "src\PyRough\PyRough.csproj", "{5CB1AE6D-52F4-4D3B-9525-B55A26A63314}"
 EndProject
@@ -25,13 +25,23 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{98680B8D-78BA-41AB-A98D-FB73242C0D3E}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		global.json = global.json
 		csharp.png = csharp.png
+		global.json = global.json
 		LICENSE.txt = LICENSE.txt
 		pngegg1.png = pngegg1.png
-		README.md = README.md
 		python.png = python.png
+		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gen", "gen", "{6BB0961C-9353-4AC1-812E-EA85D4DD2BE6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "python310", "python310", "{4EB11168-B7E2-4F2F-A824-6ADEB8B25A58}"
+	ProjectSection(SolutionItems) = preProject
+		gen\python310\python310.c = gen\python310\python310.c
+		gen\python310\python310.rsp = gen\python310\python310.rsp
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PyRough.Unsafe", "src\PyRough.Unsafe\PyRough.Unsafe.csproj", "{2D1AF3D4-9E20-4839-B448-7D27FD461E71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -125,6 +135,24 @@ Global
 		{0E76A7F5-8F4C-483C-9A7D-97C863DE0305}.TraceAlloc|x64.Build.0 = TraceAlloc|Any CPU
 		{0E76A7F5-8F4C-483C-9A7D-97C863DE0305}.TraceAlloc|x86.ActiveCfg = TraceAlloc|Any CPU
 		{0E76A7F5-8F4C-483C-9A7D-97C863DE0305}.TraceAlloc|x86.Build.0 = TraceAlloc|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Debug|x64.Build.0 = Debug|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Debug|x86.Build.0 = Debug|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Release|x64.ActiveCfg = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Release|x64.Build.0 = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Release|x86.ActiveCfg = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.Release|x86.Build.0 = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.TraceAlloc|Any CPU.ActiveCfg = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.TraceAlloc|Any CPU.Build.0 = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.TraceAlloc|x64.ActiveCfg = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.TraceAlloc|x64.Build.0 = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.TraceAlloc|x86.ActiveCfg = Release|Any CPU
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71}.TraceAlloc|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,6 +165,8 @@ Global
 		{A5EB8B03-1934-43A5-B608-47768388C018} = {C04B338D-D5F1-4EB6-B845-C6B660E26004}
 		{0E76A7F5-8F4C-483C-9A7D-97C863DE0305} = {C04B338D-D5F1-4EB6-B845-C6B660E26004}
 		{C04B338D-D5F1-4EB6-B845-C6B660E26004} = {55F079C4-6F3D-47BC-9A83-152FCE50CB3B}
+		{4EB11168-B7E2-4F2F-A824-6ADEB8B25A58} = {6BB0961C-9353-4AC1-812E-EA85D4DD2BE6}
+		{2D1AF3D4-9E20-4839-B448-7D27FD461E71} = {B14F9441-FD1B-4033-BB1A-7268DC7FCED7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {78ED005A-1B9B-42F5-8500-2C44D7187002}

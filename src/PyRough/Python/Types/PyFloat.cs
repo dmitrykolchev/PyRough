@@ -3,21 +3,15 @@
 // See LICENSE in the project root for license information
 // </copyright>
 
-
-// <copyright file="PyFloat.cs" company="Division By Zero">
-// Copyright (c) 2024 Dmitry Kolchev. All rights reserved.
-// See LICENSE in the project root for license information
-// </copyright>
-
-using PyRough.Python.Interop;
+using PyRough.Native.Python310;
 
 namespace PyRough.Python.Types;
 
 public unsafe class PyFloat : PyObject
 {
-    internal PyFloat(PyObjectHandle handle) : base(handle)
+    internal PyFloat(_PyObject* handle) : base(handle)
     {
-        if (handle.GetPyType().Handle != Runtime.Api.PyFloat_Type)
+        if ((nint)handle->ob_type != Runtime.Api.PyFloat_Type)
         {
             throw new InvalidCastException();
         }
@@ -31,7 +25,7 @@ public unsafe class PyFloat : PyObject
     {
     }
 
-    internal static PyObjectHandle FromDouble(double value)
+    internal static _PyObject* FromDouble(double value)
     {
         return Runtime.Api.PyFloat_FromDouble(value);
     }
